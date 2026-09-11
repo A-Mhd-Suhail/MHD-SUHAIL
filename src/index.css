@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/* ============================================================
+   MHD Hospital — semantic color tokens (MediNexa light palette)
+   Themes: light (default) / dark / pink — switched via
+   document.documentElement.dataset.theme (same as original app).
+   ============================================================ */
+
+:root {
+  --c-app: #F4F6F8;
+  --c-surface: #FFFFFF;
+  --c-ink: #172B3A;
+  --c-heading: #102A43;
+  --c-muted: #52606D;
+  --c-line: #CBD5E1;
+  --c-primary: #1F5F8B;
+  --c-primary-d: #173F5F;
+  --c-active: #EBF1F6;
+  --c-active-d: #D1E0EC;
+  --c-sel: #90CDF4;
+  --c-stripe: #F9FAFB;
+  --c-navy: #102A43;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #CBD5E1;
+  --c-ghost: #CBD5E1;
+  --c-ok: #276749;
+  --c-ok-bg: #E8F2EC;
+  --c-ok-bd: #BCE3C6;
+  --c-warn: #975A16;
+  --c-warn-bg: #FEF6E7;
+  --c-warn-bd: #F6E0B5;
+  --c-warn-d: #744210;
+  --c-danger: #B42318;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-bd: #FCA5A5;
+  --c-danger-d: #9B1C1C;
+  --c-live: #48BB78;
+  --c-info: #553C9A;
+  --c-info-bg: #FAF5FF;
+  --c-info-bd: #E9D8FD;
+}
+
+[data-theme="dark"] {
+  --c-app: #0B1220;
+  --c-surface: #111A2C;
+  --c-ink: #E7EEF9;
+  --c-heading: #F4F8FF;
+  --c-muted: #93A3B8;
+  --c-line: #22304A;
+  --c-primary: #4C9FD8;
+  --c-primary-d: #6FB3E0;
+  --c-active: #16243A;
+  --c-active-d: #1C2C44;
+  --c-sel: #2C5A85;
+  --c-stripe: #0E1626;
+  --c-navy: #0D1B2E;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #B7C6D9;
+  --c-ghost: #33415C;
+  --c-ok: #34D399;
+  --c-ok-bg: #0D2B22;
+  --c-ok-bd: #1E4638;
+  --c-warn: #FBBF24;
+  --c-warn-bg: #2C2210;
+  --c-warn-bd: #4A3A14;
+  --c-warn-d: #FDE68A;
+  --c-danger: #F87171;
+  --c-danger-bg: #31151A;
+  --c-danger-bd: #6B2B2B;
+  --c-danger-d: #FCA5A5;
+  --c-live: #34D399;
+  --c-info: #B4A3E8;
+  --c-info-bg: #1C1830;
+  --c-info-bd: #3A3060;
+}
+
+[data-theme="pink"] {
+  --c-app: #FFF5F8;
+  --c-surface: #FFFFFF;
+  --c-ink: #3B1030;
+  --c-heading: #2B0A22;
+  --c-muted: #94638A;
+  --c-line: #FBD7E8;
+  --c-primary: #DB2777;
+  --c-primary-d: #BE185D;
+  --c-active: #FDE7F1;
+  --c-active-d: #F9CFE2;
+  --c-sel: #F9A8C9;
+  --c-stripe: #FFF9FB;
+  --c-navy: #4A0E33;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #F3C6DA;
+  --c-ghost: #E8B4CC;
+  --c-ok: #0D9488;
+  --c-ok-bg: #ECFDF8;
+  --c-ok-bd: #B8E8DF;
+  --c-warn: #C2410C;
+  --c-warn-bg: #FFF7ED;
+  --c-warn-bd: #F8D9BC;
+  --c-warn-d: #9A3412;
+  --c-danger: #E11D48;
+  --c-danger-bg: #FFF1F4;
+  --c-danger-bd: #FBC0CE;
+  --c-danger-d: #BE123C;
+  --c-live: #0D9488;
+  --c-info: #7C3AED;
+  --c-info-bg: #F5F0FF;
+  --c-info-bd: #E9D8FD;
+}
+
+@theme inline {
+  --color-app: var(--c-app);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-ink);
+  --color-heading: var(--c-heading);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-primary: var(--c-primary);
+  --color-primary-d: var(--c-primary-d);
+  --color-active: var(--c-active);
+  --color-active-d: var(--c-active-d);
+  --color-sel: var(--c-sel);
+  --color-stripe: var(--c-stripe);
+  --color-navy: var(--c-navy);
+  --color-on-navy: var(--c-on-navy);
+  --color-on-navy-muted: var(--c-on-navy-muted);
+  --color-ghost: var(--c-ghost);
+  --color-ok: var(--c-ok);
+  --color-ok-bg: var(--c-ok-bg);
+  --color-ok-bd: var(--c-ok-bd);
+  --color-warn: var(--c-warn);
+  --color-warn-bg: var(--c-warn-bg);
+  --color-warn-bd: var(--c-warn-bd);
+  --color-warn-d: var(--c-warn-d);
+  --color-danger: var(--c-danger);
+  --color-danger-bg: var(--c-danger-bg);
+  --color-danger-bd: var(--c-danger-bd);
+  --color-danger-d: var(--c-danger-d);
+  --color-live: var(--c-live);
+  --color-info: var(--c-info);
+  --color-info-bg: var(--c-info-bg);
+  --color-info-bd: var(--c-info-bd);
+}
+
+/* Text-size setting from the original app (A− / A / A+) */
+body[data-font="sm"] { zoom: 0.93; }
+body[data-font="lg"] { zoom: 1.08; }
+
+/* Shared scrollbar styling (was referenced but never defined in the base UI) */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--c-line);
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--c-muted); }
+
+/* Entry animations (classes used across tabs) */
+@keyframes mhd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mhd-slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-in { animation-duration: 200ms; animation-fill-mode: both; }
+.fade-in { animation-name: mhd-fade-in; }
+.slide-in-from-right-4 { animation-name: mhd-slide-in-right; }
+
+/* Leaflet map container inside MyDoctorsTab */
+.leaflet-map { height: 320px; width: 100%; border-radius: 4px; z-index: 0; }

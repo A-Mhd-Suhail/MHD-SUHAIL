@@ -1,0 +1,58 @@
+====================================================================
+ MHD HOSPITAL — HOW TO HOST ON GITHUB PAGES (read me first!)
+====================================================================
+
+COPY THESE FILES/FOLDERS TO YOUR GITHUB REPO (A-Mhd-Suhail/MHD-SUHAIL):
+
+  ✅ .github            (folder — hidden! enable "show hidden files",
+                         or upload the deploy.yml file to .github/workflows/)
+  ✅ src                (folder)
+  ✅ index.html
+  ✅ package.json
+  ✅ package-lock.json  (if present)
+  ✅ tsconfig.json
+  ✅ vite.config.ts
+  ✅ README.md
+  ✅ firestore.rules
+
+DO NOT COPY THESE (too big / not needed on GitHub):
+
+  ❌ node_modules       (thousands of files — GitHub builds it for you)
+  ❌ dist               (GitHub builds this for you)
+  ❌ MHD-WEBSITE-UPLOAD / .zip leftovers
+  ❌ Start MHD Hospital(Mac).command / .bat / .app
+  ❌ .DS_Store files
+
+--------------------------------------------------------------------
+ONE-TIME SETUP ON GITHUB (must do, or the site stays blank):
+
+ 1. Delete the old files currently in the repo (especially the old
+    index.html at the top level).
+
+ 2. Upload the files listed above. The .github folder must end up at
+    the TOP of the repo with deploy.yml inside it:
+       MHD-SUHAIL/.github/workflows/deploy.yml
+
+ 3. IMPORTANT — go to:
+       repo → Settings → Pages → "Build and deployment"
+       Source:  choose  "GitHub Actions"   (NOT "Deploy from a branch")
+
+ 4. Wait 2-3 minutes. Check the "Actions" tab of the repo — you should
+    see a green check "Deploy to GitHub Pages".
+
+ 5. Open:  https://a-mhd-suhail.github.io/MHD-SUHAIL/
+
+--------------------------------------------------------------------
+ALSO DO THIS ONCE (or LOGIN will not work on the website):
+
+  console.firebase.google.com → project every-life-matters-8aca8
+  → Authentication → Settings → Authorized domains
+  → Add domain:   a-mhd-suhail.github.io
+
+--------------------------------------------------------------------
+UPDATING THE WEBSITE LATER:
+
+  Just edit your code, then upload the changed file(s) to GitHub
+  (same names, overwrite). GitHub rebuilds and publishes automatically
+  in ~2 minutes. Nothing else to do.
+====================================================================
