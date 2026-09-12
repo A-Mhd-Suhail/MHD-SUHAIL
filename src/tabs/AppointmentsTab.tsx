@@ -11,7 +11,7 @@ import { PageHeader, Loading, EmptyState, StatusChip, inputCls, labelCls, btnPri
 
 const TYPES = ['Follow-up Checkup', 'Video Consultation', 'In-person Visit'];
 
-interface DocRow { id: string; name?: string; specialization?: string; hospital?: string; phone?: string; photo?: string; onDuty?: boolean }
+interface DocRow { id: string; name?: string; specialization?: string; hospital?: string; hospitals?: string[]; phone?: string; photo?: string; onDuty?: boolean }
 
 export default function AppointmentsTab({ patientData }: { patientData: MhdUser }) {
   const [appts, setAppts] = useState<Appointment[] | null>(null);
@@ -43,6 +43,11 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
         docsList.forEach((d) => {
           const name = (d.hospital || 'MHD Hospital').trim();
           if (name) hospNames.add(name);
+          if (Array.isArray(d.hospitals)) {
+            d.hospitals.forEach((h) => {
+              if (h && typeof h === 'string' && h.trim()) hospNames.add(h.trim());
+            });
+          }
         });
         if (hospNames.size === 0) {
           hospNames.add('MHD Hospital');
@@ -55,7 +60,12 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
   }, [patientData.id]);
 
   const filteredDoctors = selectedHospital
-    ? doctors.filter((d) => (d.hospital || 'MHD Hospital').trim().toLowerCase() === selectedHospital.trim().toLowerCase())
+    ? doctors.filter((d) => {
+        const target = selectedHospital.trim().toLowerCase();
+        const primary = (d.hospital || 'MHD Hospital').trim().toLowerCase();
+        const affiliated = (d.hospitals || []).map((h) => h.trim().toLowerCase());
+        return primary === target || affiliated.includes(target);
+      })
     : [];
 
   const doctor = doctors.find((d) => d.id === f.doctorId);

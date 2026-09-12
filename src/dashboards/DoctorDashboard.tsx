@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   LayoutDashboard, Activity, FileText, Pill, MessageSquare, DollarSign,
   LogOut, Bell, UserCircle, Settings, Search, Loader2, Users, CalendarCheck, Home, ArrowLeft, RefreshCw,
+  Building2,
 } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { doc, onSnapshot, updateDoc, deleteField } from 'firebase/firestore';
@@ -19,6 +20,7 @@ import AppointmentsTab from '../tabs/doctor/AppointmentsTab';
 import MessagesTab from '../tabs/doctor/MessagesTab';
 import EarningsTab from '../tabs/doctor/EarningsTab';
 import VerifyTab from '../tabs/doctor/VerifyTab';
+import MyHospitalsTab from '../tabs/doctor/MyHospitalsTab';
 import NotificationsTab from '../tabs/shared/NotificationsTab';
 import SettingsTab from '../tabs/shared/SettingsTab';
 import NotificationBell from '../components/NotificationBell';
@@ -83,6 +85,7 @@ export default function DoctorDashboard({ onLogout }: { onLogout: () => void }) 
     [t('patients'), Users],
     [t('dappts'), CalendarCheck],
     [t('earnings'), DollarSign],
+    [t('myhospitals') || 'My Hospitals', Building2],
     [t('notifs'), Bell],
     [t('myinfo'), UserCircle],
   ];
@@ -168,6 +171,7 @@ export default function DoctorDashboard({ onLogout }: { onLogout: () => void }) 
           {activeTab === t('patients') && <PatientsTab doctorData={me} />}
           {activeTab === t('dappts') && <AppointmentsTab doctorData={me} />}
           {activeTab === t('earnings') && <EarningsTab doctorData={me} />}
+          {(activeTab === (t('myhospitals') || 'My Hospitals') || activeTab === 'My Hospitals' || activeTab === 'myhospitals') && <MyHospitalsTab doctorData={me} />}
           {activeTab === t('notifs') && <NotificationsTab />}
           {(activeTab === t('myinfo') || activeTab === t('settings')) && <SettingsTab me={me} onSaved={setMe} />}
         </main>
