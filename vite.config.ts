@@ -18,9 +18,8 @@ export default defineConfig(() => {
     },
     server: {
       port: 3000,
-      // Bind locally so the one-click desktop launcher works reliably and
-      // does not expose the development server to the whole network.
-      host: '127.0.0.1',
+      host: '0.0.0.0',
+      allowedHosts: true as const,
     },
     build: {
       target: 'es2020',
