@@ -119,8 +119,8 @@ export default function AdminBillingTab({ adminData }: { adminData: MhdUser }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stripe border-b border-line">
-                {['Patient', 'Health ID', 'Type', 'Items', 'Total', 'Status', 'Date'].map((h) => (
-                  <th key={h} className="px-4 py-3 text-[11px] font-bold text-muted uppercase tracking-wider">{h}</th>
+                {['Patient', 'Health ID', 'Type', 'Items', 'Total', 'Status', 'Date'].map((h, i) => (
+                  <th key={`${h}-${i}`} className="px-4 py-3 text-[11px] font-bold text-muted uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>

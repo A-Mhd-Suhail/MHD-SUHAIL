@@ -423,7 +423,7 @@ export default function App() {
                   <p className="text-[14px] text-muted">Secure access to your healthcare services.</p>
                 </div>
                 <div className="space-y-3">
-                  {(Object.keys(portalCopy) as PortalType[]).map((p) => (
+                  {((['patient', 'caretaker', 'doctor', 'hospital'] as PortalType[])).map((p) => (
                     <div key={p} className="bg-surface/95 border border-white/70 rounded-[10px] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_5px_18px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,23,42,0.14)] transition-all">
                       <div className="flex items-start sm:items-center gap-4 flex-1">
                         {portalCopy[p].icon}
@@ -434,13 +434,11 @@ export default function App() {
                       </div>
                       <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[160px]">
                         <button onClick={() => selectPortal(p, false)} className="h-[38px] px-4 bg-[#064e3b] text-white rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#047857] shadow-sm w-full">
-                          {p === 'hospital' ? 'Sign in as Hospital' : p === 'admin' ? 'Government Admin Login' : `Sign in as ${p}`}
+                          {p === 'hospital' ? 'Sign in as Hospital' : `Sign in as ${p}`}
                         </button>
-                        {p !== 'admin' && (
-                          <button onClick={() => selectPortal(p, true)} className="h-[38px] px-4 bg-[#eef7f1] border border-[#b8d5c3] text-ink rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#dcefe3] w-full">
-                            Create new account
-                          </button>
-                        )}
+                        <button onClick={() => selectPortal(p, true)} className="h-[38px] px-4 bg-[#eef7f1] border border-[#b8d5c3] text-ink rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#dcefe3] w-full">
+                          Create new account
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -700,6 +698,16 @@ export default function App() {
               className="text-muted hover:text-primary hover:underline underline-offset-4 transition-colors cursor-pointer py-1 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded-[4px]"
             >
               Features
+            </button>
+            <span className="text-line select-none">•</span>
+            <button
+              id="footer-link-gov-admin"
+              type="button"
+              onClick={() => selectPortal('admin', false)}
+              className="text-muted/60 hover:text-ink hover:underline underline-offset-4 transition-colors cursor-pointer py-1 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded-[4px] text-[12px]"
+              title="Official Government Administrator Access"
+            >
+              Government Admin
             </button>
           </nav>
         </footer>

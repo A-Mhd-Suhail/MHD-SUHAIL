@@ -41,9 +41,9 @@ export function StatusChip({ ok, warn, danger, children }: { ok?: boolean; warn?
 export function FilterPills({ filters, value, onChange }: { filters: string[]; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex gap-2 border-b border-line pb-4 overflow-x-auto custom-scrollbar">
-      {filters.map((f) => (
+      {filters.map((f, i) => (
         <button
-          key={f}
+          key={`${f}-${i}`}
           onClick={() => onChange(f)}
           className={`shrink-0 text-[13px] font-medium px-4 py-2 rounded-[4px] border transition-colors ${
             value === f ? 'bg-primary text-white border-primary' : 'bg-surface border-line text-muted hover:text-ink hover:bg-app'

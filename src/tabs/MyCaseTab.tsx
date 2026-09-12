@@ -185,7 +185,7 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
         <ProfileCard title="Personal" rows={[['DOB', patientData.dob], ['Gender', patientData.gender], ['Blood', patientData.bloodGroup], ['Phone', patientData.phone], ['Address', patientData.address]]} />
         <ProfileCard title="Medical" rows={[['Conditions', patientData.conditions], ['Allergies', patientData.allergies], ['Family history', patientData.familyHistory]]} />
         <ProfileCard title="Surgeries & Accidents" rows={[['Surgeries', patientData.surgeries], ['Accidents', patientData.accidents]]} />
-        <ProfileCard title="Medications" rows={meds.filter((m) => m.active !== false).slice(0, 6).map((m) => [m.name, m.dosage])} />
+        <ProfileCard title="Medications" rows={meds.filter((m) => m.active !== false).slice(0, 6).map((m, i) => [`${m.name}${meds.filter((x) => x.name === m.name).length > 1 ? ` (${i + 1})` : ''}`, m.dosage])} />
         <ProfileCard title="Identity" rows={[['Health ID', patientData.healthId], ['Emergency', patientData.emergencyName ? `${patientData.emergencyName} · ${patientData.emergencyPhone}` : ''], ['Height', patientData.heightCm ? `${patientData.heightCm} cm` : ''], ['Weight', patientData.weightKg ? `${patientData.weightKg} kg` : '']]} />
       </div>
     </div>
@@ -198,8 +198,8 @@ function ProfileCard({ title, rows }: { title: string; rows: [string, string | u
   return (
     <div className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
       <h5 className="text-[12px] font-bold text-heading mb-2">{title}</h5>
-      {filled.map(([k, v]) => (
-        <p key={k} className="text-[12px] py-1 border-b border-line last:border-0"><b className="text-muted font-medium">{k}:</b> <span className="text-ink whitespace-pre-line">{v}</span></p>
+      {filled.map(([k, v], i) => (
+        <p key={`${k}-${i}`} className="text-[12px] py-1 border-b border-line last:border-0"><b className="text-muted font-medium">{k}:</b> <span className="text-ink whitespace-pre-line">{v}</span></p>
       ))}
     </div>
   );

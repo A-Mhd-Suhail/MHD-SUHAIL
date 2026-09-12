@@ -58,8 +58,8 @@ export default function AdminCasesTab({ }: { adminData: MhdUser }) {
       {open && (
         <Modal wide title={`Case — ${open.patientName}`} onClose={() => setOpen(null)}>
           <div className="space-y-2 text-[13px]">
-            {[['Complaint', open.chiefComplaint], ['Symptoms', open.symptoms], ['Area', open.area], ['Duration', open.duration], ['Severity', open.severity], ['Prev treatment', open.prevTreatment], ['Existing', open.existing], ['Current meds', open.currentMeds], ['Allergy note', open.allergyNote], ['Surgery note', open.surgeryNote], ['Family history', open.familyHistory], ['Other', open.other]].map(([k, v]) => v && (
-              <p key={k as string}><b className="text-muted">{k}:</b> <span className="whitespace-pre-line">{v}</span></p>
+            {[['Complaint', open.chiefComplaint], ['Symptoms', open.symptoms], ['Area', open.area], ['Duration', open.duration], ['Severity', open.severity], ['Prev treatment', open.prevTreatment], ['Existing', open.existing], ['Current meds', open.currentMeds], ['Allergy note', open.allergyNote], ['Surgery note', open.surgeryNote], ['Family history', open.familyHistory], ['Other', open.other]].map(([k, v], i) => v && (
+              <p key={`${k}-${i}`}><b className="text-muted">{k}:</b> <span className="whitespace-pre-line">{v}</span></p>
             ))}
             {open.status === 'reviewed' && (
               <div className="border-t border-line pt-3 mt-3 space-y-1">
