@@ -56,8 +56,8 @@ export default function ResultsTab({ patientData }: { patientData: MhdUser }) {
           <dl className="text-[13px] space-y-1.5">
             {[['Type', open.type], ['Date', fmtD(open.date)], ['Hospital', open.hospital], ['Doctor', open.doctor], ['Note', open.note],
               ['Uploaded by', (open.uploadedBy || '—') + (open.uploadedByRole ? ` (${open.uploadedByRole})` : '')],
-              ['Uploaded on', fmtDT(open.createdAt)], ['Status', open.verified ? 'Verified' : 'Awaiting verification']].map(([k, v]) => v && (
-              <div key={k as string} className="flex gap-2"><dt className="w-[110px] shrink-0 text-muted">{k}</dt><dd className="text-ink">{v}</dd></div>
+              ['Uploaded on', fmtDT(open.createdAt)], ['Status', open.verified ? 'Verified' : 'Awaiting verification']].map(([k, v], i) => v && (
+              <div key={`${k}-${i}`} className="flex gap-2"><dt className="w-[110px] shrink-0 text-muted">{k}</dt><dd className="text-ink">{v}</dd></div>
             ))}
           </dl>
         </Modal>

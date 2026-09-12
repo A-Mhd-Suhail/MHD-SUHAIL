@@ -70,8 +70,8 @@ export default function AdminReportsTab({ adminData }: { adminData: MhdUser }) {
             {[['Type', open.type], ['Patient', open.patientName], ['Health ID', open.healthId], ['Date', fmtD(open.date)],
               ['Hospital', open.hospital], ['Doctor', open.doctor], ['Note', open.note],
               ['Uploaded', `${open.uploadedBy || '—'} · ${fmtDT(open.createdAt)}`],
-              ['Status', open.verified ? 'Verified' : 'Awaiting verification']].map(([k, v]) => v && (
-              <p key={k as string}><b className="text-muted">{k}:</b> {v}</p>
+              ['Status', open.verified ? 'Verified' : 'Awaiting verification']].map(([k, v], i) => v && (
+              <p key={`${k}-${i}`}><b className="text-muted">{k}:</b> {v}</p>
             ))}
           </div>
           {!open.verified && (

@@ -109,8 +109,8 @@ export default function HealthInputTab({ doctorData }: { doctorData: MhdUser }) 
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stripe border-b border-line">
-                {['Date', 'BP', 'Temp', 'HR', 'Weight', 'Symptoms', 'Entered'].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-[11px] font-bold text-muted uppercase tracking-wider">{h}</th>
+                {['Date', 'BP', 'Temp', 'HR', 'Weight', 'Symptoms', 'Entered'].map((h, i) => (
+                  <th key={`${h}-${i}`} className="px-4 py-2.5 text-[11px] font-bold text-muted uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>

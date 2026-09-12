@@ -171,8 +171,8 @@ export default function CasesTab({ doctorData }: { doctorData: MhdUser }) {
               <div>
                 <h5 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2">Patient-reported</h5>
                 <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1">
-                  {[['Complaint', open.chiefComplaint], ['Symptoms', open.symptoms], ['Duration', open.duration], ['Area', open.area], ['Severity', open.severity], ['Prev treatment', open.prevTreatment], ['Existing', open.existing], ['Current meds', open.currentMeds], ['Allergy note', open.allergyNote], ['Surgery note', open.surgeryNote], ['Family history', open.familyHistory], ['Other', open.other]].map(([k, v]) => v && (
-                    <p key={k as string}><b className="text-muted">{k}:</b> <span className="whitespace-pre-line">{v}</span></p>
+                  {[['Complaint', open.chiefComplaint], ['Symptoms', open.symptoms], ['Duration', open.duration], ['Area', open.area], ['Severity', open.severity], ['Prev treatment', open.prevTreatment], ['Existing', open.existing], ['Current meds', open.currentMeds], ['Allergy note', open.allergyNote], ['Surgery note', open.surgeryNote], ['Family history', open.familyHistory], ['Other', open.other]].map(([k, v], i) => v && (
+                    <p key={`${k}-${i}`}><b className="text-muted">{k}:</b> <span className="whitespace-pre-line">{v}</span></p>
                   ))}
                 </div>
               </div>
