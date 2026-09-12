@@ -33,6 +33,8 @@ export interface MhdUser {
   specialization?: string;
   experience?: string;
   hospital?: string;
+  hospitals?: string[];
+  hospitalIds?: string[];
   regNo?: string;
   onDuty?: boolean;
   location?: { lat: number; lng: number; updatedAt: number };
@@ -227,5 +229,28 @@ export interface ChatMessage {
   fromRole: Role;
   text: string;
   at: number;
+  [key: string]: unknown;
+}
+
+export type HospitalRequestStatus = 'pending' | 'accepted' | 'rejected';
+
+export interface HospitalJoinRequest {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  doctorEmail?: string;
+  doctorPhone?: string;
+  doctorSpecialization?: string;
+  doctorRegNo?: string;
+  doctorExperience?: string;
+  doctorPhoto?: string;
+  hospitalId: string;
+  hospitalName: string;
+  message?: string;
+  status: HospitalRequestStatus;
+  createdAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+  rejectReason?: string;
   [key: string]: unknown;
 }

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import {
   LayoutDashboard, Users, Stethoscope, FileText, Pill, Calendar,
   LogOut, Bell, UserCircle, Settings, Search, Loader2, FileCheck, CreditCard, Upload, Home, ArrowLeft, RefreshCw,
+  UserPlus,
 } from 'lucide-react';
 import { auth, db } from '../firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import type { MhdUser } from '../lib/types';
 import { t, LANG_EVENT } from '../lib/i18n';
@@ -15,6 +16,7 @@ import NotificationBell from '../components/NotificationBell';
 import AdminHomeTab from '../tabs/admin/AdminHomeTab';
 import AdminPatientsTab from '../tabs/admin/AdminPatientsTab';
 import AdminDoctorsTab from '../tabs/admin/AdminDoctorsTab';
+import HospitalRequestsTab from '../tabs/admin/HospitalRequestsTab';
 import AdminCasesTab from '../tabs/admin/AdminCasesTab';
 import AdminMedicinesTab from '../tabs/admin/AdminMedicinesTab';
 import AdminAppointmentsTab from '../tabs/admin/AdminAppointmentsTab';
@@ -27,6 +29,7 @@ import SettingsTab from '../tabs/shared/SettingsTab';
 export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [me, setMe] = useState<MhdUser | null>(null);
   const [activeTab, setActiveTab] = useState(t('hdash'));
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [, force] = useState(0);
   useEffect(() => { const onNavigate = (e: Event) => setActiveTab(t((e as CustomEvent<string>).detail)); window.addEventListener('mhd:navigate', onNavigate); return () => window.removeEventListener('mhd:navigate', onNavigate); }, []);
 
@@ -41,15 +44,32 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     return () => { unsub(); window.removeEventListener(LANG_EVENT, onLang); };
   }, []);
 
+  // Real-time listener for pending doctor join requests
+  useEffect(() => {
+    if (!me?.id) return;
+    const unsub = onSnapshot(collection(db, 'hospital_requests'), (snap) => {
+      const pending = snap.docs.filter((d) => {
+        const data = d.data();
+        const matchId = data.hospitalId === me.id;
+        const matchName = data.hospitalName && me.name &&
+          data.hospitalName.trim().toLowerCase() === me.name.trim().toLowerCase();
+        return (matchId || matchName) && data.status === 'pending';
+      });
+      setPendingRequestsCount(pending.length);
+    });
+    return unsub;
+  }, [me?.id, me?.name]);
+
   const doLogout = async () => {
     try { await signOut(auth); } catch { /* ignore */ }
     onLogout();
   };
 
-  const NAV: [string, typeof LayoutDashboard][] = [
+  const NAV: [string, typeof LayoutDashboard, number?][] = [
     [t('hdash'), LayoutDashboard],
     [t('hpatients'), Users],
     [t('hdoctors'), Stethoscope],
+    [t('hrequests') || 'Hospital Requests', UserPlus, pendingRequestsCount],
     [t('hcases'), FileText],
     [t('hmeds'), Pill],
     [t('happts'), Calendar],
@@ -78,15 +98,22 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
-          {NAV.map(([label, Icon], i) => (
+          {NAV.map(([label, Icon, badgeCount], i) => (
             <button
               key={`${label}-${i}`}
               onClick={() => setActiveTab(label)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[4px] text-[14px] font-medium transition-colors mb-0.5 ${
+              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-[4px] text-[14px] font-medium transition-colors mb-0.5 ${
                 activeTab === label ? 'bg-primary text-white shadow-sm' : 'text-on-navy-muted hover:bg-white/5 hover:text-white'
               }`}
             >
-              <Icon className="w-4 h-4" strokeWidth={1.5} /> {label}
+              <span className="flex items-center gap-3">
+                <Icon className="w-4 h-4" strokeWidth={1.5} /> {label}
+              </span>
+              {badgeCount && badgeCount > 0 ? (
+                <span className="bg-warn text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                  {badgeCount}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
@@ -127,6 +154,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           {activeTab === t('hdash') && <AdminHomeTab adminData={me} go={setActiveTab} />}
           {activeTab === t('hpatients') && <AdminPatientsTab adminData={me} />}
           {activeTab === t('hdoctors') && <AdminDoctorsTab adminData={me} />}
+          {(activeTab === (t('hrequests') || 'Hospital Requests') || activeTab === 'Hospital Requests' || activeTab === 'hrequests') && <HospitalRequestsTab adminData={me} />}
           {activeTab === t('hcases') && <AdminCasesTab adminData={me} />}
           {activeTab === t('hmeds') && <AdminMedicinesTab adminData={me} />}
           {activeTab === t('happts') && <AdminAppointmentsTab adminData={me} />}
