@@ -57,8 +57,8 @@ export default function AppointmentsTab({ doctorData }: { doctorData: MhdUser })
       ) : (
         <div className="bg-surface border border-line rounded-[4px] shadow-sm overflow-hidden">
           <div className="divide-y divide-line">
-            {list.map((a) => (
-              <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-stripe transition-colors">
+            {list.map((a, i) => (
+              <div key={`${a.id}-${i}`} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-stripe transition-colors">
                 <div>
                   <p className="text-[13px] font-semibold text-ink">{a.patientName} <span className="text-[11px] font-mono text-muted">{a.healthId}</span></p>
                   <p className="text-[12px] text-muted mt-0.5">{fmtD(a.date)} · {a.time} · {a.type}{a.reason ? ` · ${a.reason}` : ''}</p>

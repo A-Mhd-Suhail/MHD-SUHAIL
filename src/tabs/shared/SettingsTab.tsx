@@ -62,13 +62,18 @@ export default function SettingsTab({ me, onSaved }: { me: MhdUser; onSaved?: (u
 
   const removePhoto = () => { setPhoto(undefined); toast('Photo removed — tap Save Changes'); };
 
-  const roleLabel = me.role === 'patient' ? 'Patient' : me.role === 'doctor' ? 'Doctor' : 'Hospital Admin';
+  const roleLabel =
+    me.role === 'patient' ? 'Patient' :
+    me.role === 'doctor' ? 'Doctor' :
+    me.role === 'hospital' ? 'Hospital Admin' :
+    me.role === 'caretaker' ? 'Caretaker' :
+    'Government Admin';
 
   return (
     <div className="max-w-[1000px] mx-auto space-y-6 pb-12">
       <div>
-        <h2 className="text-[22px] font-semibold text-heading mb-1">Profile &amp; Settings</h2>
-        <p className="text-[14px] text-muted">Manage your account, photo and preferences.</p>
+        <h2 className="text-[22px] font-semibold text-heading mb-1">My Info</h2>
+        <p className="text-[14px] text-muted">Manage your personal information, photo and preferences.</p>
       </div>
 
       <div className="bg-surface border border-line rounded-[4px] p-5 shadow-sm">
@@ -145,7 +150,7 @@ export default function SettingsTab({ me, onSaved }: { me: MhdUser; onSaved?: (u
           <div>
             <label className={labelCls}>Language</label>
             <select value={curLang()} onChange={(e) => { setLanguage(e.target.value); window.location.reload(); }} className={inputCls}>
-              {LANGS.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+              {LANGS.map(([v, n], i) => <option key={`${v}-${i}`} value={v}>{n}</option>)}
             </select>
           </div>
           <div>
@@ -159,8 +164,8 @@ export default function SettingsTab({ me, onSaved }: { me: MhdUser; onSaved?: (u
           <div>
             <label className={labelCls}>Text Size</label>
             <div className="flex gap-2">
-              {(['sm', 'md', 'lg'] as const).map((v) => (
-                <button key={v} onClick={() => applyFont(v)} className={`flex-1 h-[36px] rounded-[4px] border text-[13px] transition-colors ${getFont() === v ? 'border-primary bg-active text-primary font-semibold' : 'border-line text-muted hover:bg-app'}`}>
+              {(['sm', 'md', 'lg'] as const).map((v, i) => (
+                <button key={`${v}-${i}`} onClick={() => applyFont(v)} className={`flex-1 h-[36px] rounded-[4px] border text-[13px] transition-colors ${getFont() === v ? 'border-primary bg-active text-primary font-semibold' : 'border-line text-muted hover:bg-app'}`}>
                   {v === 'sm' ? 'A−' : v === 'md' ? 'A' : 'A+'}
                 </button>
               ))}

@@ -31,18 +31,20 @@ export default function CasesTab({ doctorData }: { doctorData: MhdUser }) {
   useEffect(() => {
     const u1 = onSnapshot(query(collection(db, 'cases'), where('status', '==', 'waiting')), (s) =>
       setCases((prev) => {
-        const waiting = s.docs.map((d) => ({ id: d.id, ...d.data() } as CaseDoc));
-        const mine = (prev || []).filter((c) => c.status === 'reviewed' && c.doctorId === doctorData.id);
-        return [...waiting, ...mine];
+        const byId = new Map<string, CaseDoc>();
+        (prev || []).filter((c) => c.status === 'reviewed' && c.doctorId === doctorData.id).forEach((c) => byId.set(c.id, c));
+        s.docs.forEach((d) => byId.set(d.id, { id: d.id, ...d.data() } as CaseDoc));
+        return Array.from(byId.values());
       }));
     return u1;
-  }, []);
+  }, [doctorData.id]);
   useEffect(() => {
     const u = onSnapshot(query(collection(db, 'cases'), where('doctorId', '==', doctorData.id)), (s) =>
       setCases((prev) => {
-        const mine = s.docs.map((d) => ({ id: d.id, ...d.data() } as CaseDoc));
-        const waiting = (prev || []).filter((c) => c.status === 'waiting');
-        return [...waiting, ...mine];
+        const byId = new Map<string, CaseDoc>();
+        (prev || []).filter((c) => c.status === 'waiting').forEach((c) => byId.set(c.id, c));
+        s.docs.forEach((d) => byId.set(d.id, { id: d.id, ...d.data() } as CaseDoc));
+        return Array.from(byId.values());
       }));
     return u;
   }, [doctorData.id]);
@@ -127,8 +129,8 @@ export default function CasesTab({ doctorData }: { doctorData: MhdUser }) {
         <EmptyState icon={<FileText className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title={`No ${tab.toLowerCase()} cases`} sub={tab === 'Waiting' ? 'New patient cases will appear here.' : 'Cases you review appear here.'} />
       ) : (
         <div className="grid lg:grid-cols-2 gap-4">
-          {list.map((c) => (
-            <button key={c.id} onClick={() => setOpen(c)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
+          {list.map((c, i) => (
+            <button key={`${c.id}-${i}`} onClick={() => setOpen(c)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[14px] font-semibold text-ink">{c.patientName} <span className="text-[11px] text-muted font-mono">{c.healthId}</span></p>
@@ -195,7 +197,7 @@ export default function CasesTab({ doctorData }: { doctorData: MhdUser }) {
                   </div>
                   <div className="space-y-2">
                     {rx.map((r, i) => (
-                      <div key={i} className="grid grid-cols-[1.2fr_1fr_0.6fr_1.2fr_auto] gap-2">
+                      <div key={`rx-${i}`} className="grid grid-cols-[1.2fr_1fr_0.6fr_1.2fr_auto] gap-2">
                         <input value={r.name} onChange={(e) => setRx(rx.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} placeholder="Medicine" className={inputCls} />
                         <input value={r.dose} onChange={(e) => setRx(rx.map((x, j) => j === i ? { ...x, dose: e.target.value } : x))} placeholder="Dose" className={inputCls} />
                         <input value={r.days} onChange={(e) => setRx(rx.map((x, j) => j === i ? { ...x, days: e.target.value } : x))} placeholder="Days" className={inputCls} />
@@ -219,8 +221,8 @@ export default function CasesTab({ doctorData }: { doctorData: MhdUser }) {
               {meds.filter((m) => !m.verified).length > 0 && (
                 <div className="border border-warn-bd bg-warn-bg rounded-[4px] p-3">
                   <p className="text-[11px] font-bold text-warn uppercase tracking-wider mb-2">Unverified patient medicines</p>
-                  {meds.filter((m) => !m.verified).map((m) => (
-                    <div key={m.id} className="flex items-center justify-between text-[12px] py-1">
+                  {meds.filter((m) => !m.verified).map((m, i) => (
+                    <div key={`${m.id}-${i}`} className="flex items-center justify-between text-[12px] py-1">
                       <span className="text-ink">{m.name} · {m.dosage}</span>
                       <button onClick={async () => { await updateDoc(doc(db, 'medicines', m.id), { verified: true, verifiedBy: 'Dr. ' + doctorData.name, verifiedAt: Date.now() }); toast('Medicine verified'); }} className="font-medium text-ok">Verify</button>
                     </div>

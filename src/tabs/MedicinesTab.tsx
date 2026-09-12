@@ -71,10 +71,10 @@ export default function MedicinesTab({ patientData }: { patientData: MhdUser }) 
         <EmptyState icon={<Pill className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="No medicines here" sub="Add one above — a doctor will verify it." />
       ) : (
         <div className="space-y-3">
-          {list.map((m) => {
+          {list.map((m, i) => {
             const taken = !!(m.takenDates && m.takenDates[todayStr()]);
             return (
-              <div key={m.id} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+              <div key={`${m.id}-${i}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-[14px] font-semibold text-ink">{m.name} {taken && <span className="text-[12px] text-ok font-medium">· taken today</span>}</p>
                   <p className="text-[12px] text-muted mt-0.5">

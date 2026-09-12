@@ -66,7 +66,7 @@ export default function HealthInputTab({ doctorData }: { doctorData: MhdUser }) 
             <label className={labelCls}>Patient</label>
             <select value={pid} onChange={(e) => setPid(e.target.value)} className={inputCls}>
               <option value="">Select patient…</option>
-              {patients.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.healthId}</option>)}
+              {patients.map((p, i) => <option key={`${p.id}-${i}`} value={p.id}>{p.name} · {p.healthId}</option>)}
             </select>
           </div>
           <div><label className={labelCls}>Date</label><input type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} className={inputCls} /></div>
@@ -115,8 +115,8 @@ export default function HealthInputTab({ doctorData }: { doctorData: MhdUser }) 
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {recent.slice(0, 8).map((v) => (
-                <tr key={v.id} className="hover:bg-stripe transition-colors text-[13px]">
+              {recent.slice(0, 8).map((v, i) => (
+                <tr key={`${v.id}-${i}`} className="hover:bg-stripe transition-colors text-[13px]">
                   <td className="px-4 py-2.5 text-muted">{fmtD(v.date)}</td>
                   <td className="px-4 py-2.5 font-medium text-ink">{v.bp || '—'}</td>
                   <td className="px-4 py-2.5">{v.temp || '—'}</td>

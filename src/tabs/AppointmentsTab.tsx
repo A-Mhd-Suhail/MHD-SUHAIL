@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Calendar, Loader2, Lock } from 'lucide-react';
+import { Calendar, Loader2, Lock, Building2 } from 'lucide-react';
 import { addDoc, collection, deleteDoc, doc, getDocs, query, where, updateDoc, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { MhdUser, Appointment } from '../lib/types';
@@ -16,6 +16,8 @@ interface DocRow { id: string; name?: string; specialization?: string; hospital?
 export default function AppointmentsTab({ patientData }: { patientData: MhdUser }) {
   const [appts, setAppts] = useState<Appointment[] | null>(null);
   const [doctors, setDoctors] = useState<DocRow[]>([]);
+  const [hospitals, setHospitals] = useState<string[]>([]);
+  const [selectedHospital, setSelectedHospital] = useState('');
   const [tab, setTab] = useState('Upcoming');
   const [f, setF] = useState({ doctorId: '', date: todayStr(), type: TYPES[0], reason: '' });
   const [busy, setBusy] = useState(false);
@@ -23,11 +25,38 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
 
   useEffect(() => {
     const u1 = bind<Appointment>('appointments', [['patientId', '==', patientData.id]], setAppts);
-    getDocs(query(collection(db, 'users'), where('role', '==', 'doctor')))
-      .then((s) => setDoctors(s.docs.map((d) => ({ id: d.id, ...d.data() } as DocRow))))
+    Promise.all([
+      getDocs(query(collection(db, 'users'), where('role', '==', 'doctor'))),
+      getDocs(query(collection(db, 'users'), where('role', '==', 'hospital'))),
+    ])
+      .then(([docSnap, hospSnap]) => {
+        const docsList = docSnap.docs.map((d) => ({ id: d.id, ...d.data() } as DocRow));
+        setDoctors(docsList);
+
+        const hospNames = new Set<string>();
+        // Add hospitals from registered hospital users
+        hospSnap.docs.forEach((d) => {
+          const name = (d.data().name as string)?.trim();
+          if (name) hospNames.add(name);
+        });
+        // Add hospitals from doctor profiles
+        docsList.forEach((d) => {
+          const name = (d.hospital || 'MHD Hospital').trim();
+          if (name) hospNames.add(name);
+        });
+        if (hospNames.size === 0) {
+          hospNames.add('MHD Hospital');
+        }
+        const sortedHospitals = Array.from(hospNames).sort((a, b) => a.localeCompare(b));
+        setHospitals(sortedHospitals);
+      })
       .catch(() => { /* ignore */ });
     return u1;
   }, [patientData.id]);
+
+  const filteredDoctors = selectedHospital
+    ? doctors.filter((d) => (d.hospital || 'MHD Hospital').trim().toLowerCase() === selectedHospital.trim().toLowerCase())
+    : [];
 
   const doctor = doctors.find((d) => d.id === f.doctorId);
 
@@ -39,7 +68,7 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
       await setDocDoc(slotKey(doctor.id, f.date, time));
       await addDoc(collection(db, 'appointments'), {
         patientId: patientData.id, patientName: patientData.name, healthId: patientData.healthId || '',
-        doctorId: doctor.id, doctorName: 'Dr. ' + doctor.name, hospital: doctor.hospital || 'MHD Hospital',
+        doctorId: doctor.id, doctorName: 'Dr. ' + doctor.name, hospital: selectedHospital || doctor.hospital || 'MHD Hospital',
         date: f.date, time, type: f.type, reason: f.reason || '', status: 'upcoming', confirmed: false, createdAt: Date.now(),
       });
       await addDoc(collection(db, 'timeline'), {
@@ -95,21 +124,84 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
       <div className="bg-surface/95 border border-line rounded-2xl p-6 shadow-[0_8px_30px_rgba(16,42,67,0.08)] space-y-5">
         <div className="flex items-center gap-3 pb-1">
           <div className="w-10 h-10 rounded-xl bg-active flex items-center justify-center text-primary"><Calendar className="w-5 h-5" /></div>
-          <div><h4 className="text-[15px] font-semibold text-heading">Book an appointment</h4><p className="text-[12px] text-muted mt-0.5">Choose a doctor, date, and visit type.</p></div>
+          <div><h4 className="text-[15px] font-semibold text-heading">Book an appointment</h4><p className="text-[12px] text-muted mt-0.5">Select a hospital, choose a doctor, date, and visit type.</p></div>
         </div>
+
+        {/* Select Hospital dropdown above Doctor field */}
+        <div>
+          <label className={labelCls}>Select Hospital</label>
+          <select
+            id="appointment-select-hospital"
+            value={selectedHospital}
+            onChange={(e) => {
+              const nextHosp = e.target.value;
+              setSelectedHospital(nextHosp);
+              setF((prev) => ({ ...prev, doctorId: '' }));
+              setSelectedTime('');
+            }}
+            className={inputCls}
+          >
+            <option value="">Select a hospital…</option>
+            {hospitals.map((h, i) => (
+              <option key={`${h}-${i}`} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="grid sm:grid-cols-3 gap-3">
           <div>
             <label className={labelCls}>Doctor</label>
-            <select value={f.doctorId} onChange={(e) => setF({ ...f, doctorId: e.target.value })} className={inputCls}>
-              <option value="">Select a doctor…</option>
-              {doctors.map((d) => <option key={d.id} value={d.id}>Dr. {d.name} · {d.specialization || ''}</option>)}
+            <select
+              id="appointment-select-doctor"
+              value={f.doctorId}
+              onChange={(e) => {
+                setF({ ...f, doctorId: e.target.value });
+                setSelectedTime('');
+              }}
+              disabled={!selectedHospital}
+              className={inputCls + (!selectedHospital ? ' opacity-60 cursor-not-allowed' : '')}
+            >
+              {!selectedHospital ? (
+                <option value="">Select hospital first…</option>
+              ) : filteredDoctors.length === 0 ? (
+                <option value="">No doctors available at this hospital</option>
+              ) : (
+                <>
+                  <option value="">Select a doctor…</option>
+                  {filteredDoctors.map((d, i) => (
+                    <option key={`${d.id}-${i}`} value={d.id}>
+                      Dr. {d.name} {d.specialization ? `· ${d.specialization}` : ''}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
           </div>
-          <div><label className={labelCls}>Date</label><input type="date" min={todayStr()} value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} className={inputCls} /></div>
+          <div>
+            <label className={labelCls}>Date</label>
+            <input
+              type="date"
+              min={todayStr()}
+              value={f.date}
+              onChange={(e) => {
+                setF({ ...f, date: e.target.value });
+                setSelectedTime('');
+              }}
+              className={inputCls}
+            />
+          </div>
           <div>
             <label className={labelCls}>Type</label>
-            <select value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })} className={inputCls}>
-              {TYPES.map((ty) => <option key={ty}>{ty}</option>)}
+            <select
+              value={f.type}
+              onChange={(e) => setF({ ...f, type: e.target.value })}
+              className={inputCls}
+            >
+              {TYPES.map((ty, i) => (
+                <option key={`${ty}-${i}`}>{ty}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -118,10 +210,10 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
           <div>
             <label className={labelCls}>Available slots — {fmtD(f.date)}</label>
             <div className="flex flex-wrap gap-2">
-              {SLOT_TIMES.map((tm) => {
+              {SLOT_TIMES.map((tm, i) => {
                 const isBooked = booked.includes(tm);
                 return (
-                  <button key={tm} disabled={isBooked || busy}
+                  <button key={`${tm}-${i}`} disabled={isBooked || busy}
                     onClick={() => setSelectedTime(tm)}
                     className={`text-[12px] font-medium px-3 py-2 rounded-[4px] border transition-colors ${
                       isBooked ? 'bg-app border-line text-muted cursor-not-allowed' : selectedTime === tm ? 'bg-primary text-on-navy border-primary' : 'border-primary text-primary hover:bg-active'}`}>
@@ -142,8 +234,8 @@ export default function AppointmentsTab({ patientData }: { patientData: MhdUser 
       ) : (
         <div className="bg-surface border border-line rounded-2xl shadow-[0_6px_24px_rgba(16,42,67,0.06)] overflow-hidden">
           <div className="divide-y divide-line">
-            {list.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-4 py-3 hover:bg-stripe transition-colors">
+            {list.map((a, i) => (
+              <div key={`${a.id}-${i}`} className="flex items-center justify-between px-4 py-3 hover:bg-stripe transition-colors">
                 <div>
                   <p className="text-[13px] font-semibold text-ink">{a.doctorName} <span className="text-muted font-normal">· {a.type}</span></p>
                   <p className="text-[12px] text-muted mt-0.5">{fmtD(a.date)} · {a.time} · {a.hospital || '—'}{a.reason ? ` · ${a.reason}` : ''}</p>

@@ -28,8 +28,8 @@ export default function ResultsTab({ patientData }: { patientData: MhdUser }) {
         <EmptyState icon={<ListChecks className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="No results yet" sub="Documents your hospital uploads will appear here." />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {list.map((r) => (
-            <button key={r.id} onClick={() => setOpen(r)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
+          {list.map((r, idx) => (
+            <button key={`${r.id}-${idx}`} onClick={() => setOpen(r)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   {r.fileData ? (
