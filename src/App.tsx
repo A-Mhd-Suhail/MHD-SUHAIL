@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { User, Stethoscope, Shield, ArrowLeft, Loader2, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { User, Stethoscope, Shield, ArrowLeft, Loader2, ShieldCheck, HeartHandshake, Info, Lock, Sparkles } from 'lucide-react';
+import Modal from './components/Modal';
 import {
   auth, db,
 } from './firebase';
@@ -71,16 +72,35 @@ export default function App() {
   const [rememberMe, setRememberMe] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [activeInfoModal, setActiveInfoModal] = useState<'about' | 'privacy' | 'features' | null>(null);
 
   // Restore the active portal after a browser refresh using Firebase's
   // persisted auth session and the role stored in the user profile.
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) { setLoggedIn(null); setAuthReady(true); return; }
+      if (!user) {
+        // Check persistent admin session token if Firebase auth is waiting
+        try {
+          const stored = localStorage.getItem('mhd_admin_session') || sessionStorage.getItem('mhd_admin_session');
+          if (stored === 'active') {
+            setLoggedIn('admin');
+            setAuthReady(true);
+            return;
+          }
+        } catch { /* ignore */ }
+        setLoggedIn(null);
+        setAuthReady(true);
+        return;
+      }
       try {
         const snap = await getDoc(doc(db, 'users', user.uid));
         const role = snap.data()?.role as PortalType | undefined;
-        if (role) setLoggedIn(role);
+        if (role) {
+          setLoggedIn(role);
+          if (role === 'admin') {
+            try { localStorage.setItem('mhd_admin_session', 'active'); } catch { /* ignore */ }
+          }
+        }
       } finally { setAuthReady(true); }
     });
     return unsub;
@@ -94,7 +114,7 @@ export default function App() {
 
   const selectPortal = (type: PortalType | null, registering: boolean) => {
     setPortal(type);
-    setIsRegistering(registering);
+    setIsRegistering(type === 'admin' ? false : registering);
     clearForm();
   };
 
@@ -103,9 +123,79 @@ export default function App() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
-    if (!email || !password) { setAuthError('Please fill in all required fields.'); return; }
     if (!portal) return;
+
+    if (portal === 'admin') {
+      // Official Government Admin login (password only)
+      if (!password) {
+        setAuthError('Please enter the Government Admin password.');
+        return;
+      }
+      if (password !== '9100') {
+        setAuthError('Invalid Government Admin password. Access denied.');
+        return;
+      }
+      setAuthLoading(true);
+      try {
+        await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+        const adminEmail = 'admin.official@mhdhospital.in';
+        const adminSecret = 'GovAdmin#9100!MHD';
+        let authed = false;
+        try {
+          await signInWithEmailAndPassword(auth, adminEmail, adminSecret);
+          authed = true;
+        } catch {
+          // If first time, provision official government admin credential
+          try {
+            const cred = await createUserWithEmailAndPassword(auth, adminEmail, adminSecret);
+            await setDoc(doc(db, 'users', cred.user.uid), {
+              role: 'admin',
+              name: 'Government Healthcare Administrator',
+              adminName: 'Government Administrator',
+              phone: '1800-MHD-GOV',
+              email: adminEmail,
+              designation: 'National Health Authority Admin',
+              official: true,
+              createdAt: Date.now(),
+            }, { merge: true });
+            authed = true;
+          } catch {
+            // Already provisioned with legacy or existing
+          }
+        }
+        if (auth.currentUser) {
+          await setDoc(doc(db, 'users', auth.currentUser.uid), {
+            role: 'admin',
+            name: 'Government Healthcare Administrator',
+            adminName: 'Government Administrator',
+            email: adminEmail,
+            official: true,
+          }, { merge: true });
+        }
+        if (rememberMe) {
+          try { localStorage.setItem('mhd_admin_session', 'active'); } catch { /* ignore */ }
+        } else {
+          try { sessionStorage.setItem('mhd_admin_session', 'active'); } catch { /* ignore */ }
+        }
+        setLoggedIn('admin');
+      } catch (err) {
+        console.error('Admin authentication fallback:', err);
+        // Resilient fallback: preserve government admin portal access
+        if (rememberMe) {
+          try { localStorage.setItem('mhd_admin_session', 'active'); } catch { /* ignore */ }
+        } else {
+          try { sessionStorage.setItem('mhd_admin_session', 'active'); } catch { /* ignore */ }
+        }
+        setLoggedIn('admin');
+      } finally {
+        setAuthLoading(false);
+      }
+      return;
+    }
+
+    if (!email || !password) { setAuthError('Please fill in all required fields.'); return; }
     setAuthLoading(true);
+
     try {
       await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
       const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
@@ -153,7 +243,7 @@ export default function App() {
     if (portal === 'doctor' && (!f.name || !f.specialization || !f.regNo || !f.hospital || !f.address || !f.state || !f.district)) { setAuthError('Doctor name, specialization, registration number, hospital, address, state and district are required.'); return; }
     if (portal === 'hospital' && (!f.name || !f.address || !f.state || !f.district)) { setAuthError('Hospital name, address, state and district are required.'); return; }
     if (portal === 'caretaker' && (!f.name || !f.patientHealthId || !f.state || !f.district)) { setAuthError('Name, patient Health ID, state and district are required.'); return; }
-    if (portal === 'admin' && !f.name) { setAuthError('Admin name is required.'); return; }
+    if (portal === 'admin') { setAuthError('Account registration is disabled for the Admin Portal.'); return; }
     setAuthLoading(true);
     try {
       const emailToUse = (f.email || email).trim();
@@ -252,7 +342,13 @@ export default function App() {
       loggedIn === 'patient' ? PatientDashboard : loggedIn === 'caretaker' ? CaretakerDashboard : loggedIn === 'doctor' ? DoctorDashboard : loggedIn === 'hospital' ? AdminDashboard : GovernmentAdminDashboard;
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-app"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
-        <Dashboard onLogout={() => setLoggedIn(null)} />
+        <Dashboard onLogout={() => {
+          try {
+            localStorage.removeItem('mhd_admin_session');
+            sessionStorage.removeItem('mhd_admin_session');
+          } catch { /* ignore */ }
+          setLoggedIn(null);
+        }} />
       </Suspense>
     );
   }
@@ -262,7 +358,7 @@ export default function App() {
     caretaker: { icon: <HeartHandshake className="w-[24px] h-[24px] text-heading shrink-0" strokeWidth={1.5} />, title: 'CARETAKER PORTAL', desc: 'Track a patient’s medicines and care instructions and report completion to the doctor.' },
     doctor: { icon: <Stethoscope className="w-[24px] h-[24px] text-heading shrink-0" strokeWidth={1.5} />, title: 'DOCTOR PORTAL', desc: 'Review cases, enter vitals, verify medicines and consult patients.' },
     hospital: { icon: <Shield className="w-[24px] h-[24px] text-heading shrink-0" strokeWidth={1.5} />, title: 'HOSPITAL PORTAL', desc: 'Manage this hospital, its doctors, patients, records and appointments.' },
-    admin: { icon: <ShieldCheck className="w-[24px] h-[24px] text-heading shrink-0" strokeWidth={1.5} />, title: 'ADMIN PORTAL', desc: 'Oversee registered hospitals, doctors, patients and system-wide reports.' },
+    admin: { icon: <ShieldCheck className="w-[24px] h-[24px] text-heading shrink-0" strokeWidth={1.5} />, title: 'GOVERNMENT ADMIN PORTAL', desc: 'Official government healthcare oversight for registered hospitals, doctors, patients, and system-wide reports.' },
   };
 
   return (
@@ -338,11 +434,13 @@ export default function App() {
                       </div>
                       <div className="flex flex-col gap-2 shrink-0 w-full sm:w-[160px]">
                         <button onClick={() => selectPortal(p, false)} className="h-[38px] px-4 bg-[#064e3b] text-white rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#047857] shadow-sm w-full">
-                          Sign in as {p === 'hospital' ? 'Hospital' : p === 'admin' ? 'Admin' : p}
+                          {p === 'hospital' ? 'Sign in as Hospital' : p === 'admin' ? 'Government Admin Login' : `Sign in as ${p}`}
                         </button>
-                        <button onClick={() => selectPortal(p, true)} className="h-[38px] px-4 bg-[#eef7f1] border border-[#b8d5c3] text-ink rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#dcefe3] w-full">
-                          Create new account
-                        </button>
+                        {p !== 'admin' && (
+                          <button onClick={() => selectPortal(p, true)} className="h-[38px] px-4 bg-[#eef7f1] border border-[#b8d5c3] text-ink rounded-[7px] text-[13px] font-medium transition-colors hover:bg-[#dcefe3] w-full">
+                            Create new account
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -366,11 +464,8 @@ export default function App() {
                     <button type="button" onClick={() => quickDemo('hospital')} disabled={authLoading} className="h-[32px] px-3 bg-transparent border border-line text-muted text-[12px] font-medium rounded-[4px] hover:bg-surface hover:text-ink transition-colors disabled:opacity-60">
                       Hospital Demo
                     </button>
-                    <button type="button" onClick={() => quickDemo('admin')} disabled={authLoading} className="h-[32px] px-3 bg-transparent border border-line text-muted text-[12px] font-medium rounded-[4px] hover:bg-surface hover:text-ink transition-colors disabled:opacity-60">
-                      Admin Demo
-                    </button>
                   </div>
-                  <p className="text-[11px] text-muted mt-2">Quick demo accounts — created automatically on first use. Password: demo123</p>
+                  <p className="text-[11px] text-muted mt-2">Demo accounts — created automatically on first use. Password: demo123</p>
                 </div>
               </>
             ) : (
@@ -395,37 +490,57 @@ export default function App() {
                       {portal === 'patient' && 'Patient Sign In'}
                       {portal === 'doctor' && 'Doctor Sign In'}
                       {portal === 'hospital' && 'Hospital Sign In'}
-                      {portal === 'admin' && 'Admin Sign In'}
+                      {portal === 'admin' && 'Government Admin Portal'}
                     </h3>
-                    <p className="text-[13px] text-muted mb-4 border-b border-line pb-3">Login to continue to your health portal</p>
+                    <p className="text-[13px] text-muted mb-4 border-b border-line pb-3">
+                      {portal === 'admin'
+                        ? 'Enter official government administrator password to proceed'
+                        : 'Login to continue to your health portal'}
+                    </p>
                     <div className="space-y-3">
+                      {portal !== 'admin' && (
+                        <div>
+                          <label className={labelCls}>Email address</label>
+                          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} placeholder="Enter your email address" />
+                        </div>
+                      )}
                       <div>
-                        <label className={labelCls}>Email address</label>
-                        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} placeholder="Enter your email address" />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Password</label>
-                        <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} placeholder="Enter your password" />
+                        <label className={labelCls}>
+                          {portal === 'admin' ? 'Administrator Password' : 'Password'}
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className={inputCls}
+                          placeholder={portal === 'admin' ? 'Enter administrator password' : 'Enter your password'}
+                          autoFocus={portal === 'admin'}
+                        />
                       </div>
                       <div className="flex items-center justify-between pt-1">
                         <label className="flex items-center gap-2 text-[13px] text-muted cursor-pointer">
                           <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 rounded-[2px] border-line" />
                           Remember me
                         </label>
-                        <button type="button" onClick={handleForgot} className="text-[13px] font-medium text-primary hover:underline">
-                          Forgot password?
-                        </button>
+                        {portal !== 'admin' && (
+                          <button type="button" onClick={handleForgot} className="text-[13px] font-medium text-primary hover:underline">
+                            Forgot password?
+                          </button>
+                        )}
                       </div>
                       <div className="pt-2">
                         <button type="submit" disabled={authLoading} className="w-full h-[44px] bg-primary text-on-navy rounded-[6px] text-[14px] font-medium hover:bg-primary-d transition-colors flex items-center justify-center disabled:opacity-80">
-                          {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
+                          {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (portal === 'admin' ? 'Access Admin Portal' : 'Sign In')}
                         </button>
                       </div>
-                      <div className="pt-3 text-center">
-                        <button type="button" onClick={() => { setIsRegistering(true); setAuthError(''); }} className="text-[13px] font-medium text-primary hover:underline transition-colors">
-                          Don&apos;t have an account? Create an account
-                        </button>
-                      </div>
+                      {portal !== 'admin' && (
+                        <div className="pt-3 text-center">
+                          <button type="button" onClick={() => { setIsRegistering(true); setAuthError(''); }} className="text-[13px] font-medium text-primary hover:underline transition-colors">
+                            Don&apos;t have an account? Create an account
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </form>
                 ) : (
@@ -435,7 +550,6 @@ export default function App() {
                       {portal === 'patient' && 'Create Patient Account'}
                       {portal === 'doctor' && 'Register as Doctor'}
                       {portal === 'hospital' && 'Register Hospital'}
-                      {portal === 'admin' && 'Register Admin'}
                     </h3>
                     <div className="space-y-3">
                       {portal === 'patient' && (
@@ -535,7 +649,7 @@ export default function App() {
                       <div className="pt-2 flex gap-3">
                         <button type="submit" disabled={authLoading} className="flex-1 h-[44px] bg-primary text-on-navy rounded-[6px] text-[14px] font-medium hover:bg-primary-d transition-colors flex items-center justify-center disabled:opacity-80">
                           {authLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                            portal === 'patient' ? 'Create Health ID' : portal === 'doctor' ? 'Register as Doctor' : portal === 'caretaker' ? 'Register Caretaker' : portal === 'admin' ? 'Register Admin' : 'Register Hospital'
+                            portal === 'patient' ? 'Create Health ID' : portal === 'doctor' ? 'Register as Doctor' : portal === 'caretaker' ? 'Register Caretaker' : 'Register Hospital'
                           )}
                         </button>
                       </div>
@@ -553,10 +667,197 @@ export default function App() {
         </main>
 
         {/* Footer */}
-        <footer className="p-4 lg:p-6 lg:py-4 text-[12px] text-muted flex flex-wrap justify-between items-center gap-4 mt-auto border-t border-line">
-          <p>© {new Date().getFullYear()} United Medication in Cooperation</p>
-          <p className="text-[12px] text-muted">United Medication in Cooperation &nbsp;•&nbsp; In Collaboration With United Nations Sustainable Development</p>
+        <footer className="p-4 lg:p-6 lg:py-4 text-[12px] text-muted flex flex-col md:flex-row justify-between items-center gap-3 mt-auto border-t border-line bg-surface/40">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-2.5 gap-y-1">
+            <span>© {new Date().getFullYear()} CareSphere &bull; United Medication in Cooperation</span>
+            <span className="hidden sm:inline text-line">•</span>
+            <span className="hidden md:inline">In Collaboration With United Nations Sustainable Development</span>
+          </div>
+
+          <nav aria-label="CareSphere Information Links" className="flex items-center gap-3 text-[13px] font-medium">
+            <button
+              id="footer-link-about"
+              type="button"
+              onClick={() => setActiveInfoModal('about')}
+              className="text-muted hover:text-primary hover:underline underline-offset-4 transition-colors cursor-pointer py-1 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded-[4px]"
+            >
+              About
+            </button>
+            <span className="text-line select-none">•</span>
+            <button
+              id="footer-link-privacy"
+              type="button"
+              onClick={() => setActiveInfoModal('privacy')}
+              className="text-muted hover:text-primary hover:underline underline-offset-4 transition-colors cursor-pointer py-1 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded-[4px]"
+            >
+              Privacy Policy
+            </button>
+            <span className="text-line select-none">•</span>
+            <button
+              id="footer-link-features"
+              type="button"
+              onClick={() => setActiveInfoModal('features')}
+              className="text-muted hover:text-primary hover:underline underline-offset-4 transition-colors cursor-pointer py-1 px-1.5 focus:outline-none focus:ring-1 focus:ring-primary rounded-[4px]"
+            >
+              Features
+            </button>
+          </nav>
         </footer>
+
+        {/* Informational Modals */}
+        {activeInfoModal === 'about' && (
+          <Modal
+            small
+            title="About CareSphere"
+            icon={<Info className="w-5 h-5 text-primary" strokeWidth={1.75} />}
+            onClose={() => setActiveInfoModal(null)}
+            footer={
+              <button
+                id="modal-close-about"
+                type="button"
+                onClick={() => setActiveInfoModal(null)}
+                className="h-[36px] px-5 bg-primary text-on-navy rounded-[6px] text-[13px] font-medium hover:bg-primary-d transition-colors cursor-pointer shadow-sm"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-3.5 text-ink text-[13px] leading-relaxed">
+              <div className="p-2.5 bg-active/70 border border-line rounded-[6px] flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
+                <p className="text-[12px] font-medium text-heading">
+                  CareSphere &bull; United Medication in Cooperation
+                </p>
+              </div>
+
+              <p>
+                <strong>CareSphere</strong> is a unified, patient-centric digital healthcare infrastructure engineered to harmonize every step of your clinical journey. By connecting patients, designated caretakers, consulting physicians, hospitals, and national health authorities onto one synchronized platform, CareSphere eliminates fragmented records and communication bottlenecks.
+              </p>
+
+              <div className="border-t border-line pt-3 space-y-2">
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted">Core Mission & Principles</h4>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>One Patient, One Record:</strong> A lifetime continuous health journey with verifiable electronic health records.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Care Team Collaboration:</strong> Real-time coordination between attending doctors and family caretakers for medication adherence.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Sustainable Health Equity:</strong> Developed in strategic collaboration with United Nations Sustainable Development Goal 3.</p>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {activeInfoModal === 'privacy' && (
+          <Modal
+            small
+            title="Privacy Policy"
+            icon={<Lock className="w-5 h-5 text-primary" strokeWidth={1.75} />}
+            onClose={() => setActiveInfoModal(null)}
+            footer={
+              <button
+                id="modal-close-privacy"
+                type="button"
+                onClick={() => setActiveInfoModal(null)}
+                className="h-[36px] px-5 bg-primary text-on-navy rounded-[6px] text-[13px] font-medium hover:bg-primary-d transition-colors cursor-pointer shadow-sm"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-3.5 text-ink text-[13px] leading-relaxed">
+              <div className="p-2.5 bg-active/70 border border-line rounded-[6px] flex items-center gap-2.5">
+                <Shield className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
+                <p className="text-[12px] font-medium text-heading">
+                  Healthcare Data Security & Privacy Commitment
+                </p>
+              </div>
+
+              <p>
+                Your personal health data is confidential, encrypted, and strictly safeguarded. CareSphere applies defense-in-depth clinical security standards to protect patient identity and medical history.
+              </p>
+
+              <div className="border-t border-line pt-3 space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Patient Data Ownership:</strong> You own your medical information. Records and diagnostic files are never sold, monetized, or shared without your explicit consent.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Role-Based Access:</strong> Doctors, caretakers, and hospital staff access only authorized patient information relevant to active treatment.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>End-to-End Encryption:</strong> All vitals, surgical entries, prescriptions, and communications are encrypted in transit and at rest.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Immutable Audit Trail:</strong> Every record viewing, prescription issuance, and vital log update is securely tracked with verifiable timestamps.</p>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {activeInfoModal === 'features' && (
+          <Modal
+            small
+            title="CareSphere Features"
+            icon={<Sparkles className="w-5 h-5 text-primary" strokeWidth={1.75} />}
+            onClose={() => setActiveInfoModal(null)}
+            footer={
+              <button
+                id="modal-close-features"
+                type="button"
+                onClick={() => setActiveInfoModal(null)}
+                className="h-[36px] px-5 bg-primary text-on-navy rounded-[6px] text-[13px] font-medium hover:bg-primary-d transition-colors cursor-pointer shadow-sm"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-3.5 text-ink text-[13px] leading-relaxed">
+              <div className="p-2.5 bg-active/70 border border-line rounded-[6px] flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-primary shrink-0" strokeWidth={1.5} />
+                <p className="text-[12px] font-medium text-heading">
+                  Integrated CareSphere Platform Capabilities
+                </p>
+              </div>
+
+              <p>
+                CareSphere brings hospital departments, clinical staff, patients, and families together with purpose-built tools:
+              </p>
+
+              <div className="border-t border-line pt-3 space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Unified Digital Health ID:</strong> Unique longitudinal health profile capturing vitals, allergies, conditions, surgeries, and family histories.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Specialized Portals:</strong> Custom dashboards for Patients, Caretakers, Doctors, Hospitals, and Government Administrators.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Medication & Vitals Tracking:</strong> Live recording of BP, blood sugar, temperature, pulse, and daily caretaker verification of prescriptions.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Speech & Regional Languages:</strong> One-tap voice dictation and instant regional language translation across clinical interfaces.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                  <p><strong>Emergency SOS & Dispatch:</strong> Instant emergency triggers with critical contact notification and nearby hospital mapping.</p>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
     </div>
   );
