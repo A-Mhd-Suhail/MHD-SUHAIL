@@ -46,8 +46,8 @@ export default function VerifyTab({ doctorData }: { doctorData: MhdUser }) {
         <EmptyState icon={<CheckCircle2 className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="All caught up!" sub="No medicines waiting for verification." />
       ) : (
         <div className="grid lg:grid-cols-2 gap-4">
-          {list.map((m) => (
-            <div key={m.id} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm flex items-center justify-between gap-3">
+          {list.map((m, i) => (
+            <div key={`${m.id}-${i}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[14px] font-semibold text-ink">{m.name}</p>
                 <p className="text-[12px] text-muted mt-0.5">{m.dosage || '—'} · started {fmtD(m.startDate)}</p>

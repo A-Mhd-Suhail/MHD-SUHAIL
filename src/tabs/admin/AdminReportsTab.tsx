@@ -40,8 +40,8 @@ export default function AdminReportsTab({ adminData }: { adminData: MhdUser }) {
         <p className="p-6 text-[13px] text-muted text-center">No documents uploaded yet. Use Upload Result to add one.</p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {reports.map((r) => (
-            <div key={r.id} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
+          {reports.map((r, i) => (
+            <div key={`${r.id}-${i}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
               <button onClick={() => setOpen(r)} className="w-full text-left">
                 {r.fileData ? (
                   <img src={r.fileData} alt="" className="w-full h-[120px] object-cover rounded-[4px] border border-line mb-3" />

@@ -77,7 +77,7 @@ export default function AdminBillingTab({ adminData }: { adminData: MhdUser }) {
         <div className="grid sm:grid-cols-3 gap-3">
           <div><label className={labelCls}>Type</label>
             <select value={type} onChange={(e) => setType(e.target.value)} className={inputCls}>
-              {['medicine', 'test', 'procedure', 'room', 'other'].map((t2) => <option key={t2}>{t2}</option>)}
+              {['medicine', 'test', 'procedure', 'room', 'other'].map((t2, i) => <option key={`${t2}-${i}`}>{t2}</option>)}
             </select>
           </div>
           <div><label className={labelCls}>Date</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} /></div>
@@ -89,7 +89,7 @@ export default function AdminBillingTab({ adminData }: { adminData: MhdUser }) {
           </div>
           <div className="space-y-2">
             {items.map((it, i) => (
-              <div key={i} className="flex gap-2 items-center">
+              <div key={`item-${i}`} className="flex gap-2 items-center">
                 <input value={it.label} onChange={(e) => setItems(items.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} placeholder="Item label" className={inputCls + ' flex-1'} />
                 <input value={it.amount} onChange={(e) => setItems(items.map((x, j) => j === i ? { ...x, amount: e.target.value } : x))} placeholder="₹ amount" type="number" className={inputCls + ' w-[140px]'} />
                 {items.length > 1 && <button onClick={() => setItems(items.filter((_, j) => j !== i))} className="p-2 text-danger hover:bg-danger-bg rounded-[4px]"><Trash2 className="w-4 h-4" /></button>}
@@ -104,8 +104,8 @@ export default function AdminBillingTab({ adminData }: { adminData: MhdUser }) {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {[['Collected', paid, 'text-ok'], ['Pending', pending, 'text-danger'], ['Bills', bills.length, 'text-heading']].map(([l, v, c]) => (
-          <div key={l as string} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
+        {[['Collected', paid, 'text-ok'], ['Pending', pending, 'text-danger'], ['Bills', bills.length, 'text-heading']].map(([l, v, c], idx) => (
+          <div key={`${l}-${idx}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
             <p className="text-[11px] font-bold text-muted uppercase tracking-wider">{l}</p>
             <p className={`text-[24px] font-bold ${c}`}>{l !== 'Bills' ? rupees(v as number) : v}</p>
           </div>
@@ -125,8 +125,8 @@ export default function AdminBillingTab({ adminData }: { adminData: MhdUser }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {list.map((b) => (
-                <tr key={b.id} className="hover:bg-stripe transition-colors text-[13px]">
+              {list.map((b, i) => (
+                <tr key={`${b.id}-${i}`} className="hover:bg-stripe transition-colors text-[13px]">
                   <td className="px-4 py-3 font-medium text-ink">{b.patientName || '—'}</td>
                   <td className="px-4 py-3 font-mono text-primary">{b.healthId || '—'}</td>
                   <td className="px-4 py-3 text-muted">{b.type || '—'}</td>

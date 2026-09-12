@@ -28,7 +28,7 @@ export function LangSelect({ className = '' }: { className?: string }) {
       onChange={(e) => { const next = e.target.value; setActiveLang(next); setLanguage(next); window.location.reload(); }}
       className={className || 'h-[36px] border border-line rounded-[4px] bg-surface text-ink text-[12px] px-2 focus:outline-none focus:border-primary transition-colors'}
     >
-      {LANGS.map(([v, n]) => <option key={v} value={v}>{n}</option>)}
+      {LANGS.map(([v, n], i) => <option key={`${v}-${i}`} value={v}>{n}</option>)}
     </select>
   );
 }

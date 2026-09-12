@@ -74,8 +74,8 @@ export default function HealthOverviewTab({ patientData }: { patientData: MhdUse
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {sorted.slice(0, 10).map((v) => (
-                  <tr key={v.id} className="hover:bg-stripe transition-colors text-[13px]">
+                {sorted.slice(0, 10).map((v, i) => (
+                  <tr key={`${v.id}-${i}`} className="hover:bg-stripe transition-colors text-[13px]">
                     <td className="px-4 py-2.5 text-muted">{fmtD(v.date)}</td>
                     <td className="px-4 py-2.5 text-ink font-medium">{v.bp || '—'}</td>
                     <td className="px-4 py-2.5 text-ink">{v.temp || '—'}</td>

@@ -92,8 +92,8 @@ export default function MyDoctorsTab({ patientData }: { patientData: MhdUser }) 
         <EmptyState icon={<Stethoscope className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="No doctors registered yet" sub="Doctors will appear here once they register." />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {doctors.map((d) => (
-            <div key={d.id} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
+          {doctors.map((d, i) => (
+            <div key={`${d.id}-${i}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 {d.photo ? <img src={d.photo} alt="" className="w-11 h-11 rounded-full object-cover" />
                   : <div className="w-11 h-11 rounded-full bg-active flex items-center justify-center text-[16px] font-semibold text-primary">{(d.name || "?").charAt(0)}</div>}
@@ -137,8 +137,8 @@ export default function MyDoctorsTab({ patientData }: { patientData: MhdUser }) 
         <Modal title={`Chat with Dr. ${chatWith.name}`} onClose={() => setChatWith(null)}>
           <div className="flex flex-col gap-2 max-h-[380px] overflow-y-auto custom-scrollbar mb-3">
             {msgs.length === 0 && <p className="text-[13px] text-muted text-center py-6">No messages yet — say hello</p>}
-            {msgs.map((m) => (
-              <div key={m.id} className={`max-w-[75%] px-3 py-2 rounded-[8px] text-[13px] ${m.from === patientData.id ? 'self-end bg-primary text-on-navy' : 'self-start bg-app text-ink border border-line'}`}>
+            {msgs.map((m, i) => (
+              <div key={`${m.id || 'msg'}-${i}`} className={`max-w-[75%] px-3 py-2 rounded-[8px] text-[13px] ${m.from === patientData.id ? 'self-end bg-primary text-on-navy' : 'self-start bg-app text-ink border border-line'}`}>
                 {m.text}
               </div>
             ))}

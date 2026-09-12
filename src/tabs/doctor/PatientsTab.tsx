@@ -81,8 +81,8 @@ export default function PatientsTab({ doctorData }: { doctorData: MhdUser }) {
         <EmptyState icon={<Users className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="No patients found" sub="Try a different search." />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {list.map((p) => (
-            <button key={p.id} onClick={() => openPatient(p)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
+          {list.map((p, i) => (
+            <button key={`${p.id}-${i}`} onClick={() => openPatient(p)} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm text-left hover:border-primary transition-colors">
               <div className="flex items-center gap-3">
                 {p.photo ? <img src={p.photo} alt="" className="w-10 h-10 rounded-full object-cover" />
                   : <div className="w-10 h-10 rounded-full bg-active flex items-center justify-center text-[16px]"></div>}
@@ -125,13 +125,13 @@ export default function PatientsTab({ doctorData }: { doctorData: MhdUser }) {
                 <div className="border border-line rounded-lg p-3 mb-4">
                   <h5 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2">Caretaker assignment</h5>
                   {open.caretakerAssignment ? <p className="text-[13px] text-ink">{open.caretakerAssignment.caretakerName} · <span className="text-primary capitalize">{open.caretakerAssignment.status}</span></p> : <p className="text-[12px] text-muted mb-2">No caretaker assigned.</p>}
-                  <div className="flex gap-2 mt-2"><select value={caretakerId} onChange={(e) => setCaretakerId(e.target.value)} className={inputCls + ' flex-1'}><option value="">Choose a caretaker…</option>{caretakers.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.state || ''}</option>)}</select><button disabled={!caretakerId || assigning} onClick={assignCaretaker} className="px-3 py-2 rounded-md bg-primary text-white text-[12px] disabled:opacity-50">{assigning ? 'Sending…' : 'Assign'}</button></div>
+                  <div className="flex gap-2 mt-2"><select value={caretakerId} onChange={(e) => setCaretakerId(e.target.value)} className={inputCls + ' flex-1'}><option value="">Choose a caretaker…</option>{caretakers.map((c, i) => <option key={`${c.id}-${i}`} value={c.id}>{c.name} · {c.state || ''}</option>)}</select><button disabled={!caretakerId || assigning} onClick={assignCaretaker} className="px-3 py-2 rounded-md bg-primary text-white text-[12px] disabled:opacity-50">{assigning ? 'Sending…' : 'Assign'}</button></div>
                 </div>
               </div>
               <div>
                 <h5 className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2">Medicines</h5>
-                {meds.filter((m) => m.active !== false).map((m) => (
-                  <div key={m.id} className="flex items-center justify-between py-1 border-b border-line last:border-0">
+                {meds.filter((m) => m.active !== false).map((m, i) => (
+                  <div key={`${m.id}-${i}`} className="flex items-center justify-between py-1 border-b border-line last:border-0">
                     <span>{m.name} · {m.dosage}</span>
                     <StatusChip ok={m.verified} warn={!m.verified}>{m.verified ? 'Verified' : 'Pending'}</StatusChip>
                   </div>

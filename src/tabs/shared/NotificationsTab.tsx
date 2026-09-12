@@ -60,8 +60,8 @@ export default function NotificationsTab() {
             <div className="px-4 py-3 border-b border-line bg-stripe text-[11px] font-bold text-muted uppercase tracking-wider">New ({unread.length})</div>
             <div className="divide-y divide-line max-h-[420px] overflow-y-auto custom-scrollbar">
               {unread.length === 0 && <p className="p-6 text-[13px] text-muted text-center">You're all caught up.</p>}
-              {unread.map((n) => (
-                <div key={n.id} className="flex items-start gap-2 px-4 py-3 hover:bg-stripe transition-colors">
+              {unread.map((n, i) => (
+                <div key={`${n.id}-${i}`} className="flex items-start gap-2 px-4 py-3 hover:bg-stripe transition-colors">
                   <button onClick={() => open(n)} className="min-w-0 flex-1 text-left">
                   <p className="text-[13px] font-semibold text-ink">{n.title}</p>
                   <p className="text-[12px] text-muted mt-0.5">{n.body}</p>
@@ -76,8 +76,8 @@ export default function NotificationsTab() {
             <div className="px-4 py-3 border-b border-line bg-stripe text-[11px] font-bold text-muted uppercase tracking-wider">Read ({read.length})</div>
             <div className="divide-y divide-line max-h-[420px] overflow-y-auto custom-scrollbar">
               {read.length === 0 && <p className="p-6 text-[13px] text-muted text-center">No read notifications yet.</p>}
-              {read.map((n) => (
-                <div key={n.id} className="flex items-start gap-2 px-4 py-3 opacity-70 hover:bg-stripe">
+              {read.map((n, i) => (
+                <div key={`${n.id}-${i}`} className="flex items-start gap-2 px-4 py-3 opacity-70 hover:bg-stripe">
                   <button onClick={() => open(n)} className="min-w-0 flex-1 text-left">
                   <p className="text-[13px] font-medium text-ink">{n.title}</p>
                   <p className="text-[12px] text-muted mt-0.5">{n.body}</p>

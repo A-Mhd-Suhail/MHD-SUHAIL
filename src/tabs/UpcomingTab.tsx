@@ -42,8 +42,8 @@ export default function UpcomingTab({ patientData }: { patientData: MhdUser }) {
           <p className="p-6 text-[13px] text-muted text-center">{t('noUpcomingAppts')}</p>
         ) : (
           <div className="divide-y divide-line">
-            {upcoming.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-4 py-3 hover:bg-stripe transition-colors">
+            {upcoming.map((a, i) => (
+              <div key={`${a.id}-${i}`} className="flex items-center justify-between px-4 py-3 hover:bg-stripe transition-colors">
                 <div>
                   <p className="text-[13px] font-semibold text-ink">{a.doctorName} <span className="text-muted font-normal">· {a.type}</span></p>
                   <p className="text-[12px] text-muted mt-0.5">{fmtD(a.date)} · {a.time} · {a.hospital || '—'}</p>
@@ -66,8 +66,8 @@ export default function UpcomingTab({ patientData }: { patientData: MhdUser }) {
           <p className="text-[13px] text-muted">No follow-ups due.</p>
         ) : (
           <div className="space-y-2">
-            {followups.map((f) => (
-              <div key={f.id} className="flex items-center justify-between bg-warn-bg border border-warn-bd rounded-[4px] px-3 py-2">
+            {followups.map((f, i) => (
+              <div key={`${f.id}-${i}`} className="flex items-center justify-between bg-warn-bg border border-warn-bd rounded-[4px] px-3 py-2">
                 <div>
                   <p className="text-[13px] font-medium text-ink">{f.icon} {f.title}</p>
                   <p className="text-[12px] text-muted">{f.description}</p>
@@ -87,8 +87,8 @@ export default function UpcomingTab({ patientData }: { patientData: MhdUser }) {
           <p className="p-6 text-[13px] text-muted text-center">No active medicines.</p>
         ) : (
           <div className="divide-y divide-line">
-            {activeMeds.map((m) => (
-              <div key={m.id} className="flex items-center justify-between px-4 py-3">
+            {activeMeds.map((m, i) => (
+              <div key={`${m.id}-${i}`} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <p className="text-[13px] font-semibold text-ink">{m.name}</p>
                   <p className="text-[12px] text-muted">{m.dosage} · {schedTimeFromDosage(m.dosage || '')} · by {m.prescribedBy || '—'}</p>

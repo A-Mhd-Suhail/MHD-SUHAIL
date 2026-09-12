@@ -97,8 +97,8 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
-          {FIELDS.slice(0, 2).map(([k, label, mic]) => (
-            <div key={k}>
+          {FIELDS.slice(0, 2).map(([k, label, mic], i) => (
+            <div key={`${k}-${i}`}>
               <label className={labelCls}>{label}</label>
               <div className="flex gap-2">
                 <input value={f[k] || ''} onChange={(e) => set(k, e.target.value)} className={inputCls} />
@@ -110,8 +110,8 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
         <div>
           <label className={labelCls}>Where does it hurt? (select all that apply)</label>
           <div className="flex flex-wrap gap-2">
-            {AREAS.map((a) => (
-              <button key={a} type="button" onClick={() => setAreas((p) => p.includes(a) ? p.filter((x) => x !== a) : [...p, a])}
+            {AREAS.map((a, i) => (
+              <button key={`${a}-${i}`} type="button" onClick={() => setAreas((p) => p.includes(a) ? p.filter((x) => x !== a) : [...p, a])}
                 className={`text-[12px] font-medium px-3 py-1.5 rounded-[4px] border transition-colors ${areas.includes(a) ? 'bg-primary text-white border-primary' : 'bg-surface border-line text-muted hover:text-ink'}`}>
                 {a}
               </button>
@@ -119,8 +119,8 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
-          {FIELDS.slice(2).map(([k, label]) => (
-            <div key={k}>
+          {FIELDS.slice(2).map(([k, label], i) => (
+            <div key={`${k}-${i}`}>
               <label className={labelCls}>{label}</label>
               <div className="flex gap-2">
                 <input value={f[k] || ''} onChange={(e) => set(k, e.target.value)} className={inputCls} />
@@ -131,8 +131,8 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
           <div>
             <label className={labelCls}>Severity</label>
             <div className="flex gap-2">
-              {['Mild', 'Moderate', 'Severe'].map((s) => (
-                <button key={s} type="button" onClick={() => setSeverity(s)}
+              {['Mild', 'Moderate', 'Severe'].map((s, i) => (
+                <button key={`${s}-${i}`} type="button" onClick={() => setSeverity(s)}
                   className={`flex-1 text-[12px] font-medium px-3 py-2 rounded-[4px] border transition-colors ${severity === s ? 'bg-primary text-white border-primary' : 'bg-surface border-line text-muted'}`}>
                   {s === 'Mild' ? 'Mild' : s === 'Moderate' ? 'Moderate' : 'Severe'}
                 </button>
@@ -152,8 +152,8 @@ export default function MyCaseTab({ patientData }: { patientData: MhdUser }) {
           <EmptyState icon={<FileText className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="No cases yet" sub="Submit your first case above to start your medical journey." />
         ) : (
           <div className="space-y-3">
-            {(showAllCases ? list : list.slice(0, 3)).map((c) => (
-              <div key={c.id} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
+            {(showAllCases ? list : list.slice(0, 3)).map((c, i) => (
+              <div key={`${c.id}-${i}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[14px] font-semibold text-ink">{c.chiefComplaint}</p>

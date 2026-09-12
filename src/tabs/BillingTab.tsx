@@ -32,8 +32,8 @@ export default function BillingTab({ patientData }: { patientData: MhdUser }) {
       <PageHeader title="Billing" sub="Consultation fees and hospital bills — pay pending ones here." />
 
       <div className="grid grid-cols-3 gap-4">
-        {[['Total', total, 'text-heading'], ['Paid', paid, 'text-ok'], ['Pending', pending, 'text-danger']].map(([l, v, c]) => (
-          <div key={l as string} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
+        {[['Total', total, 'text-heading'], ['Paid', paid, 'text-ok'], ['Pending', pending, 'text-danger']].map(([l, v, c], idx) => (
+          <div key={`${l}-${idx}`} className="bg-surface border border-line rounded-[4px] p-4 shadow-sm">
             <p className="text-[11px] font-bold text-muted uppercase tracking-wider">{l}</p>
             <p className={`text-[24px] font-bold leading-tight ${c}`}>{rupees(v as number)}</p>
           </div>
@@ -45,8 +45,8 @@ export default function BillingTab({ patientData }: { patientData: MhdUser }) {
       ) : (
         <div className="bg-surface border border-line rounded-[4px] shadow-sm overflow-hidden">
           <div className="divide-y divide-line">
-            {list.map((b) => (
-              <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-stripe transition-colors">
+            {list.map((b, idx) => (
+              <div key={`${b.id}-${idx}`} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-stripe transition-colors">
                 <div>
                   <p className="text-[13px] font-semibold text-ink">{b.doctorName || b.hospital || 'MHD Hospital'} <span className="text-muted font-normal">· {b.type || 'bill'}</span></p>
                   <p className="text-[12px] text-muted mt-0.5">

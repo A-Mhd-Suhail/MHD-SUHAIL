@@ -26,8 +26,8 @@ export default function TimelineTab({ patientData }: { patientData: MhdUser }) {
         <EmptyState icon={<History className="w-8 h-8 text-ghost mx-auto" strokeWidth={1.5} />} title="Nothing here yet" sub="Cases, appointments and prescriptions will build this timeline." />
       ) : (
         <div className="bg-surface border border-line rounded-[4px] shadow-sm overflow-hidden divide-y divide-line">
-          {list.map((e) => (
-            <div key={e.id} className="flex items-start gap-4 px-4 py-3 hover:bg-stripe transition-colors">
+          {list.map((e, idx) => (
+            <div key={`${e.id}-${idx}`} className="flex items-start gap-4 px-4 py-3 hover:bg-stripe transition-colors">
               <span className="text-[20px] leading-none mt-0.5">{e.icon || '•'}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-ink">{e.title}</p>
