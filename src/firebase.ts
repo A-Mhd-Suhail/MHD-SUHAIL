@@ -2,14 +2,16 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// MHD Hospital — Firebase initialized via environment variables
+// MHD Hospital — Firebase config from env vars, with the original app's
+// project (every-life-matters-8aca8) as fallback so the portals work
+// even when .env is not available (e.g. on Vercel).
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSy-PLACEHOLDER-KEY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBXdkeWIoIlMEa5DWIrE4yHuI_jHTeM1mo",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "every-life-matters-8aca8.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "every-life-matters-8aca8",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "every-life-matters-8aca8.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "471031101690",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:471031101690:web:56f82fae6aa0287e787143",
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
