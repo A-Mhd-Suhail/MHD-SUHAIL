@@ -1,0 +1,559 @@
+@import "tailwindcss";
+
+/* ============================================================
+   MHD Hospital — Modern SaaS & Healthcare Design System
+   Themes: light / dark / pink — switched via
+   document.documentElement.dataset.theme
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+  --c-app: #F8FAFC;
+  --c-surface: #FFFFFF;
+  --c-ink: #0F172A;
+  --c-heading: #1e40af;
+  --c-muted: #64748B;
+  --c-line: #E2E8F0;
+  --c-primary: #2a8eff;
+  --c-primary-d: #1e74ff;
+  --c-active: #F0F9FF;
+  --c-active-d: #E0F2FE;
+  --c-sel: #2a8eff;
+  --c-stripe: #F8FAFC;
+  /* Portal navigation stays dark in every theme, matching the reference UI. */
+  --c-navy: #0B1224;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #94A3B8;
+  --c-ghost: #E2E8F0;
+  --c-ok: #2a8eff;
+  --c-ok-bg: #EFF6FF;
+  --c-ok-bd: #BFDBFE;
+  --c-warn: #D97706;
+  --c-warn-bg: #FFFBEB;
+  --c-warn-bd: #FDE68A;
+  --c-warn-d: #B45309;
+  --c-danger: #DC2626;
+  --c-danger-bg: #FEF2F2;
+  --c-danger-bd: #FECACA;
+  --c-danger-d: #991B1B;
+  --c-live: #2a8eff;
+  --c-info: #6366F1;
+  --c-info-bg: #EEF2FF;
+  --c-info-bd: #C7D2FE;
+}
+
+[data-theme="dark"] {
+  --c-app: #0B0F19;
+  --c-surface: #131B2E;
+  --c-ink: #F1F5F9;
+  --c-heading: #F8FAFC;
+  --c-muted: #94A3B8;
+  --c-line: #1E293B;
+  --c-primary: #2a8eff;
+  --c-primary-d: #1e74ff;
+  --c-active: #1E293B;
+  --c-active-d: #334155;
+  --c-sel: #2a8eff;
+  --c-stripe: #0F172A;
+  --c-navy: #090D16;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #64748B;
+  --c-ghost: #334155;
+  --c-ok: #2a8eff;
+  --c-ok-bg: #1e3a8a;
+  --c-ok-bd: #1d4ed8;
+  --c-warn: #FBBF24;
+  --c-warn-bg: #451A03;
+  --c-warn-bd: #78350F;
+  --c-warn-d: #FDE68A;
+  --c-danger: #F87171;
+  --c-danger-bg: #450A0A;
+  --c-danger-bd: #7F1D1D;
+  --c-danger-d: #FCA5A5;
+  --c-live: #2a8eff;
+  --c-info: #818CF8;
+  --c-info-bg: #1E1B4B;
+  --c-info-bd: #312E81;
+}
+
+[data-theme="pink"] {
+  --c-app: #FFF5F8;
+  --c-surface: #FFFFFF;
+  --c-ink: #3B1030;
+  --c-heading: #2B0A22;
+  --c-muted: #94638A;
+  --c-line: #FBD7E8;
+  --c-primary: #EC4899;
+  --c-primary-d: #DB2777;
+  --c-active: #FDE7F1;
+  --c-active-d: #F9CFE2;
+  --c-sel: #F9A8C9;
+  --c-stripe: #FFF9FB;
+  --c-navy: #4A0E33;
+  --c-on-navy: #FFFFFF;
+  --c-on-navy-muted: #F3C6DA;
+  --c-ghost: #E8B4CC;
+  --c-ok: #2a8eff;
+  --c-ok-bg: #EFF6FF;
+  --c-ok-bd: #BFDBFE;
+  --c-warn: #EA580C;
+  --c-warn-bg: #FFF7ED;
+  --c-warn-bd: #F8D9BC;
+  --c-warn-d: #9A3412;
+  --c-danger: #F43F5E;
+  --c-danger-bg: #FFF1F4;
+  --c-danger-bd: #FBC0CE;
+  --c-danger-d: #BE123C;
+  --c-live: #2a8eff;
+  --c-info: #8B5CF6;
+  --c-info-bg: #F5F0FF;
+  --c-info-bd: #E9D8FD;
+}
+
+@theme inline {
+  --color-app: var(--c-app);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-ink);
+  --color-heading: var(--c-heading);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-primary: var(--c-primary);
+  --color-primary-d: var(--c-primary-d);
+  --color-active: var(--c-active);
+  --color-active-d: var(--c-active-d);
+  --color-sel: var(--c-sel);
+  --color-stripe: var(--c-stripe);
+  --color-navy: var(--c-navy);
+  --color-on-navy: var(--c-on-navy);
+  --color-on-navy-muted: var(--c-on-navy-muted);
+  --color-ghost: var(--c-ghost);
+  --color-ok: var(--c-ok);
+  --color-ok-bg: var(--c-ok-bg);
+  --color-ok-bd: var(--c-ok-bd);
+  --color-warn: var(--c-warn);
+  --color-warn-bg: var(--c-warn-bg);
+  --color-warn-bd: var(--c-warn-bd);
+  --color-warn-d: var(--c-warn-d);
+  --color-danger: var(--c-danger);
+  --color-danger-bg: var(--c-danger-bg);
+  --color-danger-bd: var(--c-danger-bd);
+  --color-danger-d: var(--c-danger-d);
+  --color-live: var(--c-live);
+  --color-info: var(--c-info);
+  --color-info-bg: var(--c-info-bg);
+  --color-info-bd: var(--c-info-bd);
+}
+
+/* Font size adjustments */
+body[data-font="sm"] { zoom: 0.93; }
+body[data-font="lg"] { zoom: 1.08; }
+
+/* Custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--c-line);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--c-muted); }
+
+/* Animations & Keyframes */
+@keyframes mhd-fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes mhd-slide-in-right {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mhd-pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+@keyframes mhd-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-in { animation-duration: 200ms; animation-fill-mode: both; }
+.fade-in { animation-name: mhd-fade-in; }
+.slide-in-from-right-4 { animation-name: mhd-slide-in-right; }
+.pulse-glow { animation: mhd-pulse-glow 2s infinite ease-in-out; }
+
+.skeleton-loader {
+  background: linear-gradient(90deg, var(--c-stripe) 25%, var(--c-line) 50%, var(--c-stripe) 75%);
+  background-size: 200% 100%;
+  animation: mhd-shimmer 1.5s infinite;
+}
+
+/* Leaflet map container inside MyDoctorsTab */
+.leaflet-map { height: 340px; width: 100%; border-radius: 12px; z-index: 0; }
+
+/* Dark navy / #1c364f / #13233b / #1b2a4a background components text color white */
+[class*="bg-[#1c364f]"],
+[class*="bg-[#1C364F]"],
+[class*="bg-[#102B47]"],
+[class*="bg-[#071A2D]"],
+[class*="bg-[#0f172a]"],
+[class*="bg-[#13233b]"],
+[class*="bg-[#13233B]"],
+[class*="bg-[#1b2a4a]"],
+[class*="bg-[#1B2A4A]"],
+[class*="bg-[#1d2e4d]"],
+[class*="bg-[#14233c]"],
+[style*="#1c364f"],
+[style*="#1C364F"],
+[style*="#13233b"],
+[style*="#13233B"],
+[style*="#1b2a4a"],
+[style*="#1B2A4A"],
+[style*="#1d2e4d"],
+[style*="#14233c"],
+.bg-navy,
+.bg-stripe {
+  color: #ffffff !important;
+}
+
+[class*="bg-[#1c364f]"] *,
+[class*="bg-[#1C364F]"] *,
+[class*="bg-[#102B47]"] *,
+[class*="bg-[#071A2D]"] *,
+[class*="bg-[#0f172a]"] *,
+[class*="bg-[#13233b]"] *,
+[class*="bg-[#13233B]"] *,
+[class*="bg-[#1b2a4a]"] *,
+[class*="bg-[#1B2A4A]"] *,
+[class*="bg-[#1d2e4d]"] *,
+[class*="bg-[#14233c]"] *,
+[style*="#1c364f"] *,
+[style*="#1C364F"] *,
+[style*="#13233b"] *,
+[style*="#13233B"] *,
+[style*="#1b2a4a"] *,
+[style*="#1B2A4A"] *,
+[style*="#1d2e4d"] *,
+[style*="#14233c"] *,
+.bg-navy *,
+.bg-stripe * {
+  color: #ffffff !important;
+}
+
+/* Professional clinical dashboard system */
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--c-app);
+  color: var(--c-ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, a, input, select, textarea {
+  border-radius: 10px;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+main .bg-surface, main section.bg-surface, main article.bg-surface {
+  border-radius: 16px;
+  border: 1px solid var(--c-line);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+main .bg-surface:hover {
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+aside {
+  box-shadow: 1px 0 10px rgba(0, 0, 0, 0.04);
+}
+
+header {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+main input:focus, main select:focus, main textarea:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary) 18%, transparent);
+  border-color: var(--c-primary);
+}
+
+.portal-dark-sidebar .text-muted { color: var(--c-on-navy-muted); }
+.doctor-duty-card .text-muted { color: var(--c-muted); }
+.portal-dark-sidebar .text-ink, .portal-dark-sidebar .text-heading { color: #fff; }
+.portal-dark-sidebar {
+  background: #0B1224 !important;
+  color: #F8FAFC;
+}
+.portal-dark-sidebar .text-muted,
+.portal-dark-sidebar .text-ink,
+.portal-dark-sidebar .text-heading { color: #F8FAFC; }
+.portal-dark-sidebar [class*="text-slate-"] { color: #94A3B8 !important; }
+
+/* Reference Dark Mode: white navigation rail, dark workspace, white cards. */
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar,
+[data-theme="dark"] .dashboard-shell > aside.portal-dark-sidebar {
+  background: #FFFFFF !important;
+  color: #1E3A8A !important;
+  border-color: #E2E8F0 !important;
+}
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar .text-white,
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar .text-ink,
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar .text-heading {
+  color: #1E3A8A !important;
+}
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar .text-muted,
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar [class*="text-slate-"] {
+  color: #64748B !important;
+}
+[data-theme="dark"] .dashboard-shell main,
+[data-theme="dark"] .dashboard-shell main.bg-app {
+  background: #080D18 !important;
+  color: #FFFFFF;
+}
+[data-theme="dark"] .dashboard-shell main .bg-surface,
+[data-theme="dark"] .dashboard-shell main .bg-white,
+[data-theme="dark"] .dashboard-shell main section.bg-surface,
+[data-theme="dark"] .dashboard-shell main article.bg-surface {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #D9E2F0 !important;
+}
+[data-theme="dark"] .dashboard-shell main .text-ink,
+[data-theme="dark"] .dashboard-shell main [class*="text-[#1e3a8a]"] {
+  color: #0F172A !important;
+}
+[data-theme="dark"] .dashboard-shell main .text-muted,
+[data-theme="dark"] .dashboard-shell main [class*="text-slate-"] {
+  color: #64748B !important;
+}
+[data-theme="dark"] .dashboard-shell header {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #D9E2F0 !important;
+}
+[data-theme="dark"] .dashboard-shell main input,
+[data-theme="dark"] .dashboard-shell main select,
+[data-theme="dark"] .dashboard-shell main textarea {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #D9E2F0 !important;
+}
+
+/* Final rail override: each dashboard has an older inline stylesheet that
+   force-paints .portal-dark-sidebar white. Keep the rail dark regardless of
+   which portal or legacy theme block rendered it. */
+body .dashboard-shell .portal-dark-sidebar {
+  background-color: #0b1224 !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+body .dashboard-shell .portal-dark-sidebar > div,
+body .dashboard-shell .portal-dark-sidebar nav,
+body .dashboard-shell .portal-dark-sidebar .bg-white,
+body .dashboard-shell .portal-dark-sidebar .bg-slate-50 {
+  background-color: transparent !important;
+}
+
+body .dashboard-shell .portal-dark-sidebar h1,
+body .dashboard-shell .portal-dark-sidebar p,
+body .dashboard-shell .portal-dark-sidebar span,
+body .dashboard-shell .portal-dark-sidebar .text-\[\#1e3a8a\],
+body .dashboard-shell .portal-dark-sidebar .text-\[\#2a8eff\] {
+  color: #f8fafc !important;
+}
+
+body .dashboard-shell .portal-dark-sidebar button:not(.bg-red-500) {
+  background-color: transparent !important;
+  color: #9aa9c1 !important;
+}
+
+body .dashboard-shell .portal-dark-sidebar button.bg-\[\#2a8eff\],
+body .dashboard-shell .portal-dark-sidebar button:hover:not(.bg-red-500) {
+  background-color: #087fbd !important;
+  color: #ffffff !important;
+}
+[data-theme="dark"] .dashboard-shell main option {
+  background: #FFFFFF;
+  color: #0F172A;
+}
+
+.bg-primary { background-image: linear-gradient(135deg, var(--c-primary), var(--c-primary-d)); }
+.bg-active { background-image: linear-gradient(100deg, var(--c-active), color-mix(in srgb, var(--c-primary) 12%, var(--c-active))); }
+
+aside button:hover { transform: translateX(2px); }
+main button:hover:not(:disabled) { transform: translateY(-1px); }
+
+/* Consistent dark portal mode: navy navigation, dark surfaces and readable controls. */
+[data-theme="dark"] .dashboard-shell main {
+  background: var(--c-app) !important;
+  color: var(--c-ink);
+}
+[data-theme="dark"] .dashboard-shell main .bg-white {
+  background-color: var(--c-surface) !important;
+  color: var(--c-ink) !important;
+}
+[data-theme="dark"] .dashboard-shell main [class*="text-[#1e3a8a]"],
+[data-theme="dark"] .dashboard-shell main [class*="text-slate-"] {
+  color: var(--c-ink) !important;
+}
+ [data-theme="dark"] .dashboard-shell main input,
+[data-theme="dark"] .dashboard-shell main select,
+ [data-theme="dark"] .dashboard-shell main textarea {
+  background-color: var(--c-surface) !important;
+  color: var(--c-ink) !important;
+  border-color: var(--c-line) !important;
+}
+[data-theme="dark"] .dashboard-shell main option {
+  background: var(--c-surface);
+  color: var(--c-ink);
+}
+
+/* Landing Page Styling */
+.landing-page { background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); }
+.landing-brand {
+  background: radial-gradient(circle at 80% 20%, rgba(7,84,61,0.25), transparent 45%),
+              linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+}
+
+.landing-page,
+.landing-page .bg-surface,
+.landing-page input,
+.landing-page select,
+.landing-page textarea {
+  background-color: #FFFFFF;
+  color: #0F172A;
+}
+.landing-page .bg-surface,
+.landing-page .bg-surface\/95 { background-color: #FFFFFF !important; }
+.landing-page .text-heading,
+.landing-page .text-ink { color: #07543d !important; }
+.landing-page .text-muted { color: #64748B !important; }
+.landing-page .bg-primary { color: #FFFFFF !important; }
+.landing-page .border-line { border-color: #E2E8F0; }
+
+[data-theme="dark"] .landing-page {
+  background: linear-gradient(135deg, #0B0F19 0%, #131B2E 100%);
+  color: #F1F5F9;
+}
+[data-theme="dark"] .landing-page .bg-surface,
+[data-theme="dark"] .landing-page .bg-surface\/95 {
+  background-color: #131B2E !important;
+  color: #F1F5F9 !important;
+}
+[data-theme="dark"] .landing-page .text-heading,
+[data-theme="dark"] .landing-page .text-ink { color: #F8FAFC !important; }
+[data-theme="dark"] .landing-page .text-muted { color: #94A3B8 !important; }
+[data-theme="dark"] .landing-page .border-line { border-color: #1E293B !important; }
+
+/* Navigation Action Buttons */
+button[title="Home"],
+button[title="Back"],
+button[title="Refresh portal"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 36px;
+  padding: 0.45rem 0.8rem !important;
+  border: 1px solid var(--c-line, #E2E8F0) !important;
+  border-radius: 8px !important;
+  background: var(--c-surface, #FFF) !important;
+  color: var(--c-ink, #0F172A) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+button[title="Home"]::after { content: 'Home'; }
+button[title="Back"]::after { content: 'Back'; }
+button[title="Refresh portal"]::after { content: 'Refresh'; }
+
+button[title="Home"]:hover,
+button[title="Back"]:hover,
+button[title="Refresh portal"]:hover {
+  border-color: var(--c-primary, #07543d) !important;
+  color: var(--c-primary, #07543d) !important;
+  background: var(--c-active, #F0F9FF) !important;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: color-mix(in srgb, var(--c-surface) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--c-line) 60%, transparent);
+}
+
+/* Reference portal dark mode: dark navigation rail, bright workspace. */
+[data-theme="dark"] .dashboard-shell,
+[data-theme="dark"] .dashboard-shell main,
+[data-theme="dark"] .dashboard-shell main.bg-app {
+  background: #f5f8fc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .dashboard-shell > .portal-dark-sidebar,
+[data-theme="dark"] .dashboard-shell > aside.portal-dark-sidebar,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar {
+  background: #0b1224 !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar h1,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar p,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar span,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar .text-white,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar .text-ink,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar .text-heading { color: #f8fafc !important; }
+
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar .text-muted,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar [class*="text-slate-"] { color: #94a3b8 !important; }
+
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar [class*="border-"] { border-color: #26334d !important; }
+
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar button:not(.bg-red-500) {
+  color: #9aa9c1 !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar button:not(.bg-red-500):hover,
+[data-theme="dark"] .dashboard-shell .portal-dark-sidebar button.bg-\[\#2a8eff\] {
+  color: #ffffff !important;
+  background: #087fbd !important;
+}
+
+[data-theme="dark"] .dashboard-shell main .bg-white,
+[data-theme="dark"] .dashboard-shell main .bg-surface,
+[data-theme="dark"] .dashboard-shell main section.bg-surface,
+[data-theme="dark"] .dashboard-shell main article.bg-surface {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #dbe4ef !important;
+}
+
+[data-theme="dark"] .dashboard-shell main .text-ink,
+[data-theme="dark"] .dashboard-shell main .text-heading,
+[data-theme="dark"] .dashboard-shell main [class*="text-[#1e3a8a]"],
+[data-theme="dark"] .dashboard-shell main h1,
+[data-theme="dark"] .dashboard-shell main h2,
+[data-theme="dark"] .dashboard-shell main h3,
+[data-theme="dark"] .dashboard-shell main h4,
+[data-theme="dark"] .dashboard-shell main p,
+[data-theme="dark"] .dashboard-shell main label,
+[data-theme="dark"] .dashboard-shell main td,
+[data-theme="dark"] .dashboard-shell main span { color: #0f172a !important; }
+
+[data-theme="dark"] .dashboard-shell main .text-muted,
+[data-theme="dark"] .dashboard-shell main [class*="text-slate-"] { color: #64748b !important; }
+
+[data-theme="dark"] .dashboard-shell header {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #dbe4ef !important;
+}
+
+[data-theme="dark"] .dashboard-shell main input,
+[data-theme="dark"] .dashboard-shell main select,
+[data-theme="dark"] .dashboard-shell main textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #dbe4ef !important;
+}
