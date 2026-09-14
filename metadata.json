@@ -1,6 +1,0 @@
-{
-  "name": "MHD Hospital",
-  "description": "MHD Hospital — My Health Defense Hospital 24×7. Secure patient, doctor and hospital-admin health portal.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
