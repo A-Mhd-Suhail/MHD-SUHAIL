@@ -1,0 +1,406 @@
+/* ============================================================
+   MHD HOSPITAL — I18N MODULE (10 languages)
+   Ported from the original js/i18n.js. In addition to t(), the
+   DOM-walking translator is kept: a MutationObserver re-applies
+   translations over the React-rendered DOM so every label,
+   modal and dynamic row stays in the selected language.
+   ============================================================ */
+
+export const LANGS: [string, string][] = [
+  ['en', 'English'], ['hi', 'हिन्दी'], ['ta', 'தமிழ்'], ['te', 'తెలుగు'],
+  ['ml', 'മലയാളം'], ['kn', 'ಕನ್ನಡ'], ['bn', 'বাংলা'], ['mr', 'मराठी'],
+  ['gu', 'ગુજરાતી'], ['pa', 'ਪੰਜਾਬੀ'],
+];
+
+type Dict = Record<string, string>;
+
+export const I18N: Record<string, Dict> = {
+  en: {dashboard:'Dashboard',upcoming:'Upcoming',mycase:'My Case',meds:'Medicines',results:'My Results',appts:'Appointments',doctors:'My Doctors',timeline:'Timeline',tracking:'Health Overview',qr:'My QR',privacy:'Privacy & Access',billing:'Billing',notifs:'Notifications',settings:'My Info',myinfo:'My Info',emergency:'Emergency',logout:'Logout',cases:'Cases',verify:'Verify Medicines',chats:'Messages',patients:'Patients',dappts:'My Appointments',earnings:'My Earnings',myhospitals:'My Hospitals',healthinput:'Health Input',hdash:'Hospital Dashboard',hpatients:'All Patients',hdoctors:'All Doctors',hrequests:'Hospital Requests',hcases:'All Cases',hmeds:'Medicines',hdocs:'Verify Documents',happts:'Appointments',hupload:'Upload Result',greetM:'Good Morning',greetA:'Good Afternoon',greetE:'Good Evening',page:'MHD Hospital',loginH:'Welcome Back',loginSub:'Login to continue to your health portal',email:'Email',password:'Password',remember:'Remember me',forgot:'Forgot password?',loginBtn:'Login',haveAcc:'Already have an account?',createAcc:'Create Health ID',demoBtn:'Quick Demo Login',
+    register:'Register',welcomeBack:'Welcome back! Please login to continue.',createAccSub:'Create your MHD account to continue.',noAcc:"Don't have an account?",fullName:'Full Name',dob:'Date of Birth',gender:'Gender',bloodGroup:'Blood Group',phone:'Phone',address:'Address',languageLbl:'Language',rolePatient:'Patient',roleDoctor:'Doctor',roleHospital:'Hospital Admin',registerDoctor:'Register as Doctor',registerHospital:'Register Hospital',
+    quickActions:'Quick Actions',bookAppt:'Book Appointment',talkDoctor:'Talk to Doctor',newCase:'New / My Case',todaySchedule:"Today's Schedule",activeMeds:'Active Medicines',recentResults:'Recent Results',recovery:'Recovery Progress',upcomingAppt:'Upcoming Appointment',viewDetails:'View Details',allMeds:'All Medicines',allResults:'All Results',billingHistory:'Billing History',careStatus:'Care Status',noUpcomingAppts:'No upcoming appointments.',noBillsYet:'No bills yet.',upcomingEvents:'Upcoming Events',followReminders:'Follow-up Reminders',addMedicine:'Add Medicine',confirmAppt:'Confirm Appointment',upcomingTab:'Upcoming',completedTab:'Completed',cancelledTab:'Cancelled',notifCenter:'Notification Center',profileSettings:'My Info',emergencyBtn:'EMERGENCY',saveBtn:'Save',closeBtn:'Close',payBtn:'Pay',pendingLbl:'Pending',paidLbl:'Paid',allBills:'All Bills',verifyCenter:'Medicine Verification Center',loginAs:'Login as',hospitalWord:'Hospital',patientDemo:'Patient Demo',doctorDemo:'Doctor Demo',hospitalDemo:'Hospital Demo',roleLbl:'Role',emailAddress:'Email address',emailPh:'Enter your email address',passPh:'Enter your password',signIn:'Sign in',createAccount:'Create an account',demoAccounts:'→ Demo accounts',demoHint:'Quick demo accounts — created automatically on first use. Password: demo123',demoFill:'Try Demo (fill sample data)',healthStatus:'HEALTH STATUS',nextApptLbl:'NEXT APPOINTMENT',viewLink:'View →',viewAll:'VIEW ALL →',todaysMeds:"TODAY'S MEDICATIONS",waitingReview:'Waiting for Doctor Review',recoStart:'Submit your first case to start tracking your recovery.',recoGreat:'You are doing great! Continue following your care plan.',recoDoing:'You are doing well. Continue following your current care plan.',activeSub:'Active',upcomingSub:'Upcoming',totalSub:'Total',unreadSub:'Unread',takenLbl:'Taken',verifiedLbl:'Verified',markTaken:'Mark Taken',followDue:'Follow-up due'},
+  hi: {dashboard:'डैशबोर्ड',upcoming:'आगामी',mycase:'मेरा केस',meds:'दवाइयाँ',results:'मेरे परिणाम',appts:'अपॉइंटमेंट',doctors:'मेरे डॉक्टर',timeline:'टाइमलाइन',tracking:'स्वास्थ्य विवरण',qr:'मेरा QR',privacy:'गोपनीयता व पहुँच',billing:'बिल',notifs:'सूचनाएँ',settings:'मेरी जानकारी',myinfo:'मेरी जानकारी',emergency:'आपातकाल',logout:'लॉगआउट',cases:'केस',verify:'दवा सत्यापन',chats:'संदेश',patients:'मरीज़',dappts:'मेरे अपॉइंटमेंट',earnings:'मेरी कमाई',healthinput:'स्वास्थ्य प्रविष्टि',hdash:'अस्पताल डैशबोर्ड',hpatients:'सभी मरीज़',hdoctors:'सभी डॉक्टर',hcases:'सभी केस',hmeds:'दवाइयाँ',hdocs:'दस्तावेज़ सत्यापन',happts:'अपॉइंटमेंट',hupload:'परिणाम अपलोड',greetM:'सुप्रभात',greetA:'नमस्कार',greetE:'शुभ संध्या',page:'MHD हॉस्पिटल',loginH:'वापसी पर स्वागत है',loginSub:'अपने हेल्थ पोर्टल पर जारी रखने के लिए लॉगिन करें',email:'ईमेल',password:'पासवर्ड',remember:'मुझे याद रखें',forgot:'पासवर्ड भूल गए?',loginBtn:'लॉगिन',haveAcc:'पहले से खाता है?',createAcc:'हेल्थ आईडी बनाएं',demoBtn:'क्विक डेमो लॉगिन',
+    register:'रजिस्टर',welcomeBack:'वापसी पर स्वागत है! जारी रखने के लिए लॉगिन करें।',createAccSub:'जारी रखने के लिए अपना MHD खाता बनाएं।',noAcc:'खाता नहीं है?',fullName:'पूरा नाम',dob:'जन्म तिथि',gender:'लिंग',bloodGroup:'रक्त समूह',phone:'फ़ोन',address:'पता',languageLbl:'भाषा',rolePatient:'मरीज़',roleDoctor:'डॉक्टर',roleHospital:'अस्पताल प्रशासक',registerDoctor:'डॉक्टर के रूप में रजिस्टर करें',registerHospital:'अस्पताल रजिस्टर करें',
+    quickActions:'त्वरित कार्य',bookAppt:'अपॉइंटमेंट बुक करें',talkDoctor:'डॉक्टर से बात करें',newCase:'नया / मेरा केस',todaySchedule:'आज का शेड्यूल',activeMeds:'सक्रिय दवाइयाँ',recentResults:'हाल के परिणाम',recovery:'रिकवरी प्रगति',upcomingAppt:'आगामी अपॉइंटमेंट',viewDetails:'विवरण देखें',allMeds:'सभी दवाइयाँ',allResults:'सभी परिणाम',billingHistory:'बिल इतिहास',careStatus:'देखभाल स्थिति',noUpcomingAppts:'कोई आगामी अपॉइंटमेंट नहीं।',noBillsYet:'अभी कोई बिल नहीं है।',upcomingEvents:'आगामी कार्यक्रम',followReminders:'फॉलो-अप अनुस्मारक',addMedicine:'दवा जोड़ें',confirmAppt:'अपॉइंटमेंट की पुष्टि करें',upcomingTab:'आगामी',completedTab:'पूर्ण',cancelledTab:'रद्द',notifCenter:'सूचना केंद्र',profileSettings:'मेरी जानकारी',emergencyBtn:'आपातकाल',saveBtn:'सहेजें',closeBtn:'बंद करें',payBtn:'भुगतान करें',pendingLbl:'बाकी',paidLbl:'भुगतान हुआ',allBills:'सभी बिल',verifyCenter:'दवा सत्यापन केंद्र',loginAs:'लॉगिन के रूप में',hospitalWord:'अस्पताल',patientDemo:'मरीज़ डेमो',doctorDemo:'डॉक्टर डेमो',hospitalDemo:'अस्पताल डेमो',roleLbl:'भूमिका',emailAddress:'ईमेल पता',emailPh:'अपना ईमेल पता दर्ज करें',passPh:'अपना पासवर्ड दर्ज करें',signIn:'साइन इन करें',createAccount:'खाता बनाएं',demoAccounts:'→ डेमो खाते',demoHint:'क्विक डेमो खाते — पहली बार उपयोग पर स्वतः बन जाते हैं। पासवर्ड: demo123',demoFill:'डेमो आज़माएं (नमूना डेटा भरें)',healthStatus:'स्वास्थ्य स्थिति',nextApptLbl:'अगला अपॉइंटमेंट',viewLink:'देखें →',viewAll:'सभी देखें →',todaysMeds:'आज की दवाइयाँ',waitingReview:'डॉक्टर समीक्षा के लिए प्रतीक्षा',recoStart:'रिकवरी ट्रैक करना शुरू करने के लिए अपना पहला केस सबमिट करें।',recoGreat:'आप बहुत अच्छा कर रहे हैं! अपनी देखभाल योजना जारी रखें।',recoDoing:'आप अच्छा कर रहे हैं। अपनी वर्तमान देखभाल योजना जारी रखें।',activeSub:'सक्रिय',upcomingSub:'आगामी',totalSub:'कुल',unreadSub:'अपठित',takenLbl:'ली गई',verifiedLbl:'सत्यापित',markTaken:'ली गई चिह्नित करें',followDue:'फॉलो-अप बाकी'},
+  ta: {dashboard:'டாஷ்போர்டு',upcoming:'வரவிருக்கும்',mycase:'என் கேஸ்',meds:'மருந்துகள்',results:'என் முடிவுகள்',appts:'சந்திப்புகள்',doctors:'என் மருத்துவர்கள்',timeline:'காலவரிசை',tracking:'உடல்நல கண்ணோட்டம்',qr:'என் QR',privacy:'தனியுரிமை & அணுகல்',billing:'பில்',notifs:'அறிவிப்புகள்',settings:'என் விவரங்கள்',myinfo:'என் விவரங்கள்',emergency:'அவசரம்',logout:'வெளியேறு',cases:'கேஸ்கள்',verify:'மருந்து சரிபார்ப்பு',chats:'செய்திகள்',patients:'நோயாளிகள்',dappts:'என் சந்திப்புகள்',earnings:'என் வருவாய்',healthinput:'உடல்நல பதிவு',hdash:'மருத்துவமனை டாஷ்போர்டு',hpatients:'அனைத்து நோயாளிகள்',hdoctors:'அனைத்து மருத்துவர்கள்',hcases:'அனைத்து கேஸ்கள்',hmeds:'மருந்துகள்',hdocs:'ஆவண சரிபார்ப்பு',happts:'சந்திப்புகள்',hupload:'முடிவு பதிவேற்றம்',greetM:'காலை வணக்கம்',greetA:'மதிய வணக்கம்',greetE:'மாலை வணக்கம்',page:'MHD மருத்துவமனை',loginH:'மீண்டும் வரவேற்கிறோம்',loginSub:'உங்கள் சுகாதார தளத்திற்கு உள்நுழையவும்',email:'மின்னஞ்சல்',password:'கடவுச்சொல்',remember:'என்னை நினைவில் கொள்',forgot:'கடவுச்சொல்லை மறந்தீர்களா?',loginBtn:'உள்நுழைய',haveAcc:'ஏற்கனவே கணக்கு உள்ளதா?',createAcc:'உடல்நல ஐடி உருவாக்கு',demoBtn:'டெமா உள்நுழைவு',
+    register:'பதிவு செய்யுங்கள்',welcomeBack:'மீண்டும் வருக! தொடர உள்நுழையுங்கள்.',createAccSub:'தொடர உங்கள் MHD கணக்கை உருவாக்குங்கள்.',noAcc:'கணக்கு இல்லையா?',fullName:'முழு பெயர்',dob:'பிறந்த தேதி',gender:'பாலினம்',bloodGroup:'ரத்த வகை',phone:'தொலைபேசி',address:'முகவரி',languageLbl:'மொழி',rolePatient:'நோயாளி',roleDoctor:'மருத்துவர்',roleHospital:'மருத்துவமனை நிர்வாகி',registerDoctor:'மருத்துவராக பதிவு',registerHospital:'மருத்துவமனையை பதிவு செய்யுங்கள்',
+    quickActions:'விரைவு செயல்கள்',bookAppt:'சந்திப்பு பதிவு செய்யுங்கள்',talkDoctor:'மருத்துவருடன் பேசுங்கள்',newCase:'புதிய / என் கேஸ்',todaySchedule:'இன்றைய அட்டவணை',activeMeds:'செயலில் உள்ள மருந்துகள்',recentResults:'சமீபத்திய முடிவுகள்',recovery:'மீட்சி முன்னேற்றம்',upcomingAppt:'வரவிருக்கும் சந்திப்பு',viewDetails:'விவரங்களைப் பார்க்க',allMeds:'அனைத்து மருந்துகள்',allResults:'அனைத்து முடிவுகள்',billingHistory:'பில் வரலாறு',careStatus:'பராமரிப்பு நிலை',noUpcomingAppts:'வரவிருக்கும் சந்திப்புகள் இல்லை.',noBillsYet:'இன்னும் பில்கள் இல்லை.',upcomingEvents:'வரவிருக்கும் நிகழ்வுகள்',followReminders:'பின்தொடர்வு நினைவூட்டல்கள்',addMedicine:'மருந்து சேர்க்கவும்',confirmAppt:'சந்திப்பை உறுதிப்படுத்து',upcomingTab:'வரவிருக்கும்',completedTab:'முடிந்தது',cancelledTab:'ரத்து',notifCenter:'அறிவிப்பு மையம்',profileSettings:'என் விவரங்கள்',emergencyBtn:'அவசரம்',saveBtn:'சேமி',closeBtn:'மூடு',payBtn:'பணம் செலுத்து',pendingLbl:'நிலுவையில்',paidLbl:'பணம் செலுத்தப்பட்டது',allBills:'அனைத்து பில்கள்',verifyCenter:'மருந்து சரிபார்ப்பு மையம்',loginAs:'உள்நுழையும் பாத்திரம்',hospitalWord:'மருத்துவமனை',patientDemo:'நோயாளி டெமோ',doctorDemo:'மருத்துவர் டெமோ',hospitalDemo:'மருத்துவமனை டெமோ',roleLbl:'பாத்திரம்',emailAddress:'மின்னஞ்சல் முகவரி',emailPh:'உங்கள் மின்னஞ்சலை உள்ளிடுங்கள்',passPh:'உங்கள் கடவுச்சொல்லை உள்ளிடுங்கள்',signIn:'உள்நுழைய',createAccount:'கணக்கை உருவாக்கு',demoAccounts:'→ டெமோ கணக்குகள்',demoHint:'டெமோ கணக்குகள் — முதல் பயன்பாட்டில் தானாக உருவாகும். கடவுச்சொல்: demo123',demoFill:'டெமோ முயற்சி (மாதிரி தரவு)',healthStatus:'உடல்நல நிலை',nextApptLbl:'அடுத்த சந்திப்பு',viewLink:'பார்க்க →',viewAll:'அனைத்தையும் பார்க்க →',todaysMeds:'இன்றைய மருந்துகள்',waitingReview:'மருத்துவர் மதிப்பாய்வுக்காக காத்திருக்கிறது',recoStart:'மீட்சியைக் கண்காணிக்க உங்கள் முதல் கேஸை சமர்ப்பிக்கவும்.',recoGreat:'நீங்கள் சிறப்பாக இருக்கிறீர்கள்! கவனிப்புத் திட்டத்தை தொடர்ந்து பின்பற்றுங்கள்.',recoDoing:'நீங்கள் நன்றாக இருக்கிறீர்கள். தற்போதைய கவனிப்புத் திட்டத்தை தொடர்ந்து பின்பற்றுங்கள்.',activeSub:'செயலில்',upcomingSub:'வரவிருக்கும்',totalSub:'மொத்தம்',unreadSub:'படிக்காதது',takenLbl:'எடுக்கப்பட்டது',verifiedLbl:'சரிபார்க்கப்பட்டது',markTaken:'எடுத்ததாக குறி',followDue:'பின்தொடர்வு நிலுவை'},
+  te: {dashboard:'డాష్‌బోర్డ్',upcoming:'రాబోయేవి',mycase:'నా కేసు',meds:'మందులు',results:'నా ఫలితాలు',appts:'అపాయింట్‌మెంట్లు',doctors:'నా డాక్టర్లు',timeline:'టైమ్‌లైన్',tracking:'ఆరోగ్య సమాచారం',qr:'నా QR',privacy:'గోప్యత & యాక్సెస్',billing:'బిల్లు',notifs:'నోటిఫికేషన్లు',settings:'నా సమాచారం',myinfo:'నా సమాచారం',emergency:'అత్యవసరం',logout:'లాగ్ అవుట్',cases:'కేసులు',verify:'మందు ధృవీకరణ',chats:'సందేశాలు',patients:'రోగులు',dappts:'నా అపాయింట్‌మెంట్లు',earnings:'నా ఆదాయం',healthinput:'ఆరోగ్య నమోదు',hdash:'ఆసుపత్రి డాష్‌బోర్డ్',hpatients:'అన్ని రోగులు',hdoctors:'అన్ని డాక్టర్లు',hcases:'అన్ని కేసులు',hmeds:'మందులు',hdocs:'పత్ర ధృవీకరణ',happts:'అపాయింట్‌మెంట్లు',hupload:'ఫలితం అప్‌లోడ్',greetM:'శుభోదయం',greetA:'శుభ మధ్యాహ్నం',greetE:'శుభ సాయంత్రం',page:'MHD ఆసుపత్రి',loginH:'తిరిగి స్వాగతం',loginSub:'మీ ఆరోగ్య పోర్టల్‌కు కొనసాగించడానికి లాగిన్ అవ్వండి',email:'ఇమెయిల్',password:'పాస్‌వర్డ్',remember:'నన్ను గుర్తుంచుకో',forgot:'పాస్‌వర్డ్ మరచిపోయారా?',loginBtn:'లాగిన్',haveAcc:'ఖాతా ఉందా?',createAcc:'హెల్త్ ఐడీ సృష్టించండి',demoBtn:'డెమో లాగిన్',
+    register:'నమోదు చేసుకోండి',welcomeBack:'తిరిగి వచ్చారు! కొనసాగించడానికి లాగిన్ అవ్వండి.',createAccSub:'కొనసాగించడానికి మీ MHD ఖాతాను సృష్టించండి.',noAcc:'ఖాతా లేదా?',fullName:'పూర్తి పేరు',dob:'పుట్టిన తేదీ',gender:'లింగం',bloodGroup:'రక్త వర్గం',phone:'ఫోన్',address:'చిరునామా',languageLbl:'భాష',rolePatient:'రోగి',roleDoctor:'వైద్యుడు',roleHospital:'ఆసుపత్రి నిర్వాహకుడు',registerDoctor:'వైద్యుడిగా నమోదు',registerHospital:'ఆసుపత్రిని నమోదు చేయండి',
+    quickActions:'త్వరిత చర్యలు',bookAppt:'అపాయింట్‌మెంట్ బుక్ చేయండి',talkDoctor:'డాక్టర్‌తో మాట్లాడండి',newCase:'కొత్త / నా కేసు',todaySchedule:'ఈరోజు షెడ్యూల్',activeMeds:'క్రియాశీల మందులు',recentResults:'ఇటీవలి ఫలితాలు',recovery:'కోలుకోవడం పురోగతి',upcomingAppt:'రాబోయే అపాయింట్‌మెంట్',viewDetails:'వివరాలు చూడండి',allMeds:'అన్ని మందులు',allResults:'అన్ని ఫలితాలు',billingHistory:'బిల్లుల చరిత్ర',careStatus:'సంరక్షణ స్థితి',noUpcomingAppts:'రాబోయే అపాయింట్‌మెంట్లు లేవు.',noBillsYet:'ఇంకా బిల్లులు లేవు.',upcomingEvents:'రాబోయే కార్యక్రమాలు',followReminders:'ఫాలో-అప్ రిమైండర్లు',addMedicine:'మందు జోడించండి',confirmAppt:'అపాయింట్‌మెంట్ ఖరారు చేయండి',upcomingTab:'రాబోయేవి',completedTab:'పూర్తయినవి',cancelledTab:'రద్దు',notifCenter:'నోటిఫికేషన్ కేంద్రం',profileSettings:'నా సమాచారం',emergencyBtn:'అత్యవసరం',saveBtn:'సేవ్ చేయండి',closeBtn:'మూసివేయండి',payBtn:'చెల్లించండి',pendingLbl:'పెండింగ్',paidLbl:'చెల్లించారు',allBills:'అన్ని బిల్లులు',verifyCenter:'మందు ధృవీకరణ కేంద్రం',loginAs:'లాగిన్ రోల్',hospitalWord:'ఆసుపత్రి',patientDemo:'రోగి డెమో',doctorDemo:'వైద్యుడు డెమో',hospitalDemo:'ఆసుపత్రి డెమో',roleLbl:'పాత్ర',emailAddress:'ఇమెయిల్ చిరునామా',emailPh:'మీ ఇమెయిల్ నమోదు చేయండి',passPh:'మీ పాస్‌వర్డ్ నమోదు చేయండి',signIn:'లాగిన్',createAccount:'ఖాతా సృష్టించండి',demoAccounts:'→ డెమో ఖాతాలు',demoHint:'డెమో ఖాతాలు — మొదటి వాడకంలో స్వయంగా సృష్టమవుతాయి. పాస్‌వర్డ్: demo123',demoFill:'డెమో ప్రయత్నించండి (నమూనా డేటా)',healthStatus:'ఆరోగ్య స్థితి',nextApptLbl:'తదుపరి అపాయింట్‌మెంట్',viewLink:'చూడండి →',viewAll:'అన్నీ చూడండి →',todaysMeds:'ఈరోజు మందులు',waitingReview:'వైద్యుడి సమీక్ష కోసం వేచి ఉన్నారు',recoStart:'కోలుకోవడం ట్రాక్ చేయడానికి మీ మొదటి కేసు సమర్పించండి.',recoGreat:'మీరు చాలా బాగుంటున్నారు! సంరక్షణ ప్రణాళికను కొనసాగించండి.',recoDoing:'మీరు బాగుంటున్నారు. ప్రస్తుత సంరక్షణ ప్రణాళికను కొనసాగించండి.',activeSub:'క్రియాశీల',upcomingSub:'రాబోతున్న',totalSub:'మొత్తం',unreadSub:'చదవని',takenLbl:'తీసుకున్నారు',verifiedLbl:'ధృవీకరించబడింది',markTaken:'తీసుకున్నట్టు గుర్తించు',followDue:'ఫాలో-అప్ మిగిలింది'},
+  ml: {dashboard:'ഡാഷ്ബോർഡ്',upcoming:'വരാനിരിക്കുന്നവ',mycase:'എന്റെ കേസ്',meds:'മരുന്നുകൾ',results:'എന്റെ ഫലങ്ങൾ',appts:'അപ്പോയിന്റ്മെന്റുകൾ',doctors:'എന്റെ ഡോക്ടർമാർ',timeline:'ടൈംലൈൻ',tracking:'ആരോഗ്യ അവലോകനം',qr:'എന്റെ QR',privacy:'സ്വകാര്യത & ആക്സസ്സ്',billing:'ബിൽ',notifs:'അറിയിപ്പുകൾ',settings:'എന്റെ വിവരങ്ങൾ',myinfo:'എന്റെ വിവരങ്ങൾ',emergency:'അത്യാഹിതം',logout:'ലോഗ് ഔട്ട്',cases:'കേസുകൾ',verify:'മരുന്ന് സ്ഥിരീകരണം',chats:'സന്ദേശങ്ങൾ',patients:'രോഗികൾ',dappts:'എന്റെ അപ്പോയിന്റ്മെന്റുകൾ',earnings:'എന്റെ വരുമാനം',healthinput:'ആരോഗ്യ നമോദു',hdash:'ആശുപത്രി ഡാഷ്ബോർഡ്',hpatients:'എല്ലാ രോഗികളും',hdoctors:'എല്ലാ ഡോക്ടർമാരും',hcases:'എല്ലാ കേസുകളും',hmeds:'മരുന്നുകൾ',hdocs:'രേഖ സ്ഥിരീകരണം',happts:'അപ്പോയിന്റ്മെന്റുകൾ',hupload:'ഫലം അപ്‌ലോഡ്',greetM:'സുപ്രഭാതം',greetA:'ശുഭ ഉച്ച',greetE:'ശുഭ സന്ധ്യ',page:'MHD ആശുപത്രി',loginH:'വീണ്ടും സ്വാഗതം',loginSub:'നിങ്ങളുടെ ആരോഗ്യ പോർട്ടലിലേക്ക് തുടരാൻ ലോഗിൻ ചെയ്യുക',email:'ഇമെയിൽ',password:'പാസ്‌വേഡ്',remember:'എന്നെ ഓർത്തിരിക്കുക',forgot:'പാസ്‌വേഡ് മറന്നോ?',loginBtn:'ലോഗിൻ',haveAcc:'അക്കൗണ്ട് ഉണ്ടോ?',createAcc:'ഹെൽത്ത് ഐഡി സൃഷ്ടിക്കുക',demoBtn:'ഡെമോ ലോഗിൻ',
+    register:'രജിസ്റ്റർ ചെയ്യുക',welcomeBack:'വീണ്ടും വന്നതിൽ സന്തോഷം! തുടരാൻ ലോഗിൻ ചെയ്യുക.',createAccSub:'തുടരാൻ നിങ്ങളുടെ MHD അക്കൗണ്ട് സൃഷ്ടിക്കുക.',noAcc:'അക്കൗണ്ട് ഇല്ലേ?',fullName:'പൂർണ്ണ പേര്',dob:'ജനന തീയതി',gender:'ലിംഗം',bloodGroup:'രക്ത ഗ്രൂപ്പ്',phone:'ഫോൺ',address:'വിലാസം',languageLbl:'ഭാഷ',rolePatient:'രോഗി',roleDoctor:'ഡോക്ടർ',roleHospital:'ആശുപത്രി അഡ്മിൻ',registerDoctor:'ഡോക്ടറായി രജിസ്റ്റർ ചെയ്യുക',registerHospital:'ആശുപത്രി രജിസ്റ്റർ ചെയ്യുക',
+    quickActions:'ദ്രുത പ്രവർത്തനങ്ങൾ',bookAppt:'അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യുക',talkDoctor:'ഡോക്ടറുമായി സംസാരിക്കുക',newCase:'പുതിയ / എന്റെ കേസ്',todaySchedule:'ഇന്നത്തെ ഷെഡ്യൂൾ',activeMeds:'സജീവ മരുന്നുകൾ',recentResults:'സമീപകാല ഫലങ്ങൾ',recovery:'വീണ്ടെടുപ്പ് പുരോഗതി',upcomingAppt:'വരാനിരിക്കുന്ന അപ്പോയിന്റ്മെന്റ്',viewDetails:'വിവരങ്ങൾ കാണുക',allMeds:'എല്ലാ മരുന്നുകളും',allResults:'എല്ലാ ഫലങ്ങളും',billingHistory:'ബിൽ ചരിത്രം',careStatus:'പരിചരണ നില',noUpcomingAppts:'വരാനിരിക്കുന്ന അപ്പോയിന്റ്മെന്റുകൾ ഇല്ല.',noBillsYet:'ഇതുവരെ ബില്ലുകൾ ഇല്ല.',upcomingEvents:'വരാനിരിക്കുന്ന പരിപാടികൾ',followReminders:'ഫോളോ-അപ്പ് ഓർമ്മപ്പെടുത്തലുകൾ',addMedicine:'മരുന്ന് ചേർക്കുക',confirmAppt:'അപ്പോയിന്റ്മെന്റ് സ്ഥിരീകരിക്കുക',upcomingTab:'വരാനിരിക്കുന്നവ',completedTab:'പൂർത്തിയായത്',cancelledTab:'റദ്ദാക്കിയത്',notifCenter:'അറിയിപ്പ് കേന്ദ്രം',profileSettings:'എന്റെ വിവരങ്ങൾ',emergencyBtn:'അത്യാഹിതം',saveBtn:'സേവ് ചെയ്യുക',closeBtn:'അടയ്ക്കുക',payBtn:'പണമടയ്ക്കുക',pendingLbl:'ബാക്കി',paidLbl:'അടച്ചു',allBills:'എല്ലാ ബില്ലുകളും',verifyCenter:'മരുന്ന് സ്ഥിരീകരണ കേന്ദ്രം',loginAs:'ലോഗിൻ റോൾ',hospitalWord:'ആശുപത്രി',patientDemo:'രോഗി ഡെമോ',doctorDemo:'ഡോക്ടർ ഡെമോ',hospitalDemo:'ആശുപത്രി ഡെമോ',roleLbl:'റോൾ',emailAddress:'ഇമെയിൽ വിലാസം',emailPh:'നിങ്ങളുടെ ഇമെയിൽ നൽകുക',passPh:'നിങ്ങളുടെ പാസ്‌വേഡ് നൽകുക',signIn:'ലോഗിൻ',createAccount:'അക്കൗണ്ട് സൃഷ്ടിക്കുക',demoAccounts:'→ ഡെമോ അക്കൗണ്ടുകൾ',demoHint:'ഡെമോ അക്കൗണ്ടുകൾ — ആദ്യ ഉപയോഗത്തിൽ സ്വയമേവ സൃഷ്ടിക്കുന്നു. പാസ്‌വേഡ്: demo123',demoFill:'ഡെമോ പരീക്ഷിക്കുക (സാമ്പിൾ ഡാറ്റ)',healthStatus:'ആരോഗ്യ നില',nextApptLbl:'അടുത്ത അപ്പോയിന്റ്മെന്റ്',viewLink:'കാണുക →',viewAll:'എല്ലാം കാണുക →',todaysMeds:'ഇന്നത്തെ മരുന്നുകൾ',waitingReview:'ഡോക്ടർ അവലോകനത്തിനായി കാക്കുന്നു',recoStart:'വീണ്ടെടുപ്പ് ട്രാക്ക് ചെയ്യാൻ ആദ്യ കേസ് സമർപ്പിക്കുക.',recoGreat:'നിങ്ങൾ വളരെ നന്നായിട്ടുണ്ട്! പരിചരണ പദ്ധതി തുടർന്ന് പാലിക്കുക.',recoDoing:'നിങ്ങൾ നന്നായിരിക്കുന്നു. നിലവിലെ പരിചരണ പദ്ധതി തുടരുക.',activeSub:'സജീവം',upcomingSub:'വരാനുള്ള',totalSub:'ആകെ',unreadSub:'വായിച്ചിട്ടില്ല',takenLbl:'എടുത്തു',verifiedLbl:'സ്ഥിരീകരിച്ചു',markTaken:'എടുത്തതായി അടയാളപ്പെടുത്തുക',followDue:'ഫോളോ-അപ്പ് ബാക്കി'},
+  kn: {dashboard:'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',upcoming:'ಮುಂಬರುವ',mycase:'ನನ್ನ ಪ್ರಕರಣ',meds:'ಔಷಧಿಗಳು',results:'ನನ್ನ ಫಲಿತಾಂಶ',appts:'ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು',doctors:'ನನ್ನ ವೈದ್ಯರು',timeline:'ಟೈಮ್‌ಲೈನ್',tracking:'ಆರೋಗ್ಯ ಸಮೀಕ್ಷೆ',qr:'ನನ್ನ QR',privacy:'ಗೋಪ್ಯತೆ ಮತ್ತು ಪ್ರವೇಶ',billing:'ಬಿಲ್',notifs:'ಅಧಿಸೂಚನೆಗಳು',settings:'ನನ್ನ ಮಾಹಿತಿ',myinfo:'ನನ್ನ ಮಾಹಿತಿ',emergency:'ತುರ್ತು',logout:'ಲಾಗ್ ಔಟ್',cases:'ಪ್ರಕರಣಗಳು',verify:'ಔಷಧ ಪರಿಶೀಲನೆ',chats:'ಸಂದೇಶಗಳು',patients:'ರೋಗಿಗಳು',dappts:'ನನ್ನ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು',earnings:'ನನ್ನ ಆದಾಯ',healthinput:'ಆರೋಗ್ಯ ನಮೂದು',hdash:'ಆಸ್ಪತ್ರೆ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',hpatients:'ಎಲ್ಲಾ ರೋಗಿಗಳು',hdoctors:'ಎಲ್ಲಾ ವೈದ್ಯರು',hcases:'ಎಲ್ಲಾ ಪ್ರಕರಣಗಳು',hmeds:'ಔಷಧಿಗಳು',hdocs:'ದಸ್ತಾವೇಜು ಪರಿಶೀಲನೆ',happts:'ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು',hupload:'ಫಲಿತಾಂಶ ಅಪ್‌ಲೋಡ್',greetM:'ಶುಭೋದಯ',greetA:'ಶುಭ ಮಧ್ಯಾಹ್ನ',greetE:'ಶುಭ ಸಂಜೆ',page:'MHD ಆಸ್ಪತ್ರೆ',loginH:'ಮರಳಿ ಸ್ವಾಗತ',loginSub:'ನಿಮ್ಮ ಆರೋಗ್ಯ ಪೋರ್ಟಲ್‌ಗೆ ಮುಂದುವರಿಯಲು ಲಾಗಿನ್ ಮಾಡಿ',email:'ಇಮೇಲ್',password:'ಪಾಸ್‌ವರ್ಡ್',remember:'ನನ್ನನ್ನು ನೆನಪಿಟ್ಟುಕೊಳ್ಳಿ',forgot:'ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?',loginBtn:'ಲಾಗಿನ್',haveAcc:'ಖಾತೆ ಇದೆಯೇ?',createAcc:'ಆರೋಗ್ಯ ಐಡಿ ರಚಿಸಿ',demoBtn:'ಡೆಮೊ ಲಾಗಿನ್',
+    register:'ನೋಂದಣಿ ಮಾಡಿ',welcomeBack:'ಮರಳಿ ಬಂದಿದ್ದಕ್ಕೆ ಸ್ವಾಗತ! ಮುಂದುವರಿಯಲು ಲಾಗಿನ್ ಮಾಡಿ.',createAccSub:'ಮುಂದುವರಿಯಲು ನಿಮ್ಮ MHD ಖಾತೆಯನ್ನು ರಚಿಸಿ.',noAcc:'ಖಾತೆ ಇಲ್ಲವೇ?',fullName:'ಪೂರ್ಣ ಹೆಸರು',dob:'ಜನ್ಮ ದಿನಾಂಕ',gender:'ಲಿಂಗ',bloodGroup:'ರಕ್ತ ಗುಂಪು',phone:'ದೂರವಾಣಿ',address:'ವಿಳಾಸ',languageLbl:'ಭಾಷೆ',rolePatient:'ರೋಗಿ',roleDoctor:'ವೈದ್ಯ',roleHospital:'ಆಸ್ಪತ್ರೆ ಆಡಳಿತಗಾರ',registerDoctor:'ವೈದ್ಯರಾಗಿ ನೋಂದಣಿ',registerHospital:'ಆಸ್ಪತ್ರೆ ನೋಂದಣಿ ಮಾಡಿ',
+    quickActions:'ತ್ವರಿತ ಕ್ರಿಯೆಗಳು',bookAppt:'ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ಬುಕ್ ಮಾಡಿ',talkDoctor:'ವೈದ್ಯರೊಂದಿಗೆ ಮಾತನಾಡಿ',newCase:'ಹೊಸ / ನನ್ನ ಪ್ರಕರಣ',todaySchedule:'ಇಂದಿನ ವೇಳಾಪಟ್ಟಿ',activeMeds:'ಸಕ್ರಿಯ ಔಷಧಿಗಳು',recentResults:'ಇತ್ತೀಚಿನ ಫಲಿತಾಂಶಗಳು',recovery:'ಚೇತರಿಕೆ ಪ್ರಗತಿ',upcomingAppt:'ಮುಂಬರುವ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್',viewDetails:'ವಿವರಗಳನ್ನು ನೋಡಿ',allMeds:'ಎಲ್ಲಾ ಔಷಧಿಗಳು',allResults:'ಎಲ್ಲಾ ಫಲಿತಾಂಶಗಳು',billingHistory:'ಬಿಲ್ ಇತಿಹಾಸ',careStatus:'ಆರೈಕೆ ಸ್ಥಿತಿ',noUpcomingAppts:'ಮುಂಬರುವ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳಿಲ್ಲ.',noBillsYet:'ಇನ್ನೂ ಬಿಲ್‌ಗಳಿಲ್ಲ.',upcomingEvents:'ಮುಂಬರುವ ಕಾರ್ಯಕ್ರಮಗಳು',followReminders:'ಫಾಲೋ-ಅಪ್ ಜ್ಞಾಪನೆಗಳು',addMedicine:'ಔಷಧಿ ಸೇರಿಸಿ',confirmAppt:'ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ದೃಢೀಕರಿಸಿ',upcomingTab:'ಮುಂಬರುವ',completedTab:'ಪೂರ್ಣಗೊಂಡಿದೆ',cancelledTab:'ರದ್ದು',notifCenter:'ಅಧಿಸೂಚನೆ ಕೇಂದ್ರ',profileSettings:'ನನ್ನ ಮಾಹಿತಿ',emergencyBtn:'ತುರ್ತು',saveBtn:'ಉಳಿಸಿ',closeBtn:'ಮುಚ್ಚಿ',payBtn:'ಪಾವತಿಸಿ',pendingLbl:'ಬಾಕಿ',paidLbl:'ಪಾವತಿಯಾಗಿದೆ',allBills:'ಎಲ್ಲಾ ಬಿಲ್‌ಗಳು',verifyCenter:'ಔಷಧ ಪರಿಶೀಲನಾ ಕೇಂದ್ರ',loginAs:'ಲಾಗಿನ್ ಪಾತ್ರ',hospitalWord:'ಆಸ್ಪತ್ರೆ',patientDemo:'ರೋಗಿ ಡೆಮೊ',doctorDemo:'ವೈದ್ಯ ಡೆಮೊ',hospitalDemo:'ಆಸ್ಪತ್ರೆ ಡೆಮೊ',roleLbl:'ಪಾತ್ರ',emailAddress:'ಇಮೇಲ್ ವಿಳಾಸ',emailPh:'ನಿಮ್ಮ ಇಮೇಲ್ ನಮೂದಿಸಿ',passPh:'ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ',signIn:'ಲಾಗಿನ್',createAccount:'ಖಾತೆ ರಚಿಸಿ',demoAccounts:'→ ಡೆಮೊ ಖಾತೆಗಳು',demoHint:'ಡೆಮೊ ಖಾತೆಗಳು — ಮೊದಲ ಬಳಕೆಯಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ರಚನೆಯಾಗುತ್ತವೆ. ಪಾಸ್‌ವರ್ಡ್: demo123',demoFill:'ಡೆಮೊ ಪ್ರಯತ್ನಿಸಿ (ಮಾದರಿ ದತ್ತಾಂಶ)',healthStatus:'ಆರೋಗ್ಯ ಸ್ಥಿತಿ',nextApptLbl:'ಮುಂದಿನ ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್',viewLink:'ನೋಡಿ →',viewAll:'ಎಲ್ಲವನ್ನೂ ನೋಡಿ →',todaysMeds:'ಇಂದಿನ ಔಷಧಿಗಳು',waitingReview:'ವೈದ್ಯರ ಪರಿಶೀಲನೆಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ',recoStart:'ಚೇತರಿಕೆಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಲು ನಿಮ್ಮ ಮೊದಲ ಪ್ರಕರಣವನ್ನು ಸಲ್ಲಿಸಿ.',recoGreat:'ನೀವು ಬಹಳ ಚೆನ್ನಾಗಿದ್ದೀರಿ! ಆರೈಕೆ ಯೋಜನೆಯನ್ನು ಮುಂದುವರಿಸಿ.',recoDoing:'ನೀವು ಚೆನ್ನಾಗಿದ್ದೀರಿ. ಪ್ರಸ್ತುತ ಆರೈಕೆ ಯೋಜನೆಯನ್ನು ಮುಂದುವರಿಸಿ.',activeSub:'ಸಕ್ರಿಯ',upcomingSub:'ಮುಂಬರುವ',totalSub:'ಒಟ್ಟು',unreadSub:'ಓದಿಲ್ಲ',takenLbl:'ತೆಗೆದುಕೊಂಡ',verifiedLbl:'ದೃಢೀಕರಿಸಲಾಗಿದೆ',markTaken:'ತೆಗೆದುಕೊಂಡಂತೆ ಗುರ್ತಿಸಿ',followDue:'ಫಾಲೋ-ಅಪ್ ಬಾಕಿ'},
+  bn: {dashboard:'ড্যাশবোর্ড',upcoming:'আসন্ন',mycase:'আমার কেস',meds:'ওষুধ',results:'আমার ফলাফল',appts:'অ্যাপয়েন্টমেন্ট',doctors:'আমার ডাক্তার',timeline:'টাইমলাইন',tracking:'স্বাস্থ্য ওভারভিউ',qr:'আমার QR',privacy:'গোপনীয়তা ও অ্যাক্সেস',billing:'বিল',notifs:'বিজ্ঞপ্তি',settings:'আমার তথ্য',myinfo:'আমার তথ্য',emergency:'জরুরি',logout:'লগআউট',cases:'কেস',verify:'ওষুধ যাচাই',chats:'বার্তা',patients:'রোগী',dappts:'আমার অ্যাপয়েন্টমেন্ট',earnings:'আমার আয়',healthinput:'স্বাস্থ্য এন্ট্রি',hdash:'হাসপাতাল ড্যাশবোর্ড',hpatients:'সব রোগী',hdoctors:'সব ডাক্তার',hcases:'সব কেস',hmeds:'ওষুধ',hdocs:'ডকুমেন্ট যাচাই',happts:'অ্যাপয়েন্টমেন্ট',hupload:'ফলাফল আপলোড',greetM:'সুপ্রভাত',greetA:'শুভ অপরাহ্ন',greetE:'শুভ সন্ধ্যা',page:'MHD হাসপাতাল',loginH:'স্বাগতম',loginSub:'আপনার স্বাস্থ্য পোর্টালে চালিয়ে যেতে লগইন করুন',email:'ইমেইল',password:'পাসওয়ার্ড',remember:'মনে রাখুন',forgot:'পাসওয়ার্ড ভুলে গেছেন?',loginBtn:'লগইন',haveAcc:'অ্যাকাউন্ট আছে?',createAcc:'হেলথ আইডি তৈরি করুন',demoBtn:'ডেমো লগইন',
+    register:'রেজিস্টার',welcomeBack:'ফিরে আসার জন্য স্বাগতম! চালিয়ে যেতে লগইন করুন।',createAccSub:'চালিয়ে যেতে আপনার MHD অ্যাকাউন্ট তৈরি করুন।',noAcc:'অ্যাকাউন্ট নেই?',fullName:'পুরো নাম',dob:'জন্ম তারিখ',gender:'লিঙ্গ',bloodGroup:'রক্তের গ্রুপ',phone:'ফোন',address:'ঠিকানা',languageLbl:'ভাষা',rolePatient:'রোগী',roleDoctor:'ডাক্তার',roleHospital:'হাসপাতাল প্রশাসক',registerDoctor:'ডাক্তার হিসেবে রেজিস্টার',registerHospital:'হাসপাতাল রেজিস্টার করুন',
+    quickActions:'দ্রুত কাজ',bookAppt:'অ্যাপয়েন্টমেন্ট বুক করুন',talkDoctor:'ডাক্তারের সাথে কথা বলুন',newCase:'নতুন / আমার কেস',todaySchedule:'আজকের সময়সূচি',activeMeds:'চলমান ওষুধ',recentResults:'সাম্প্রতিক ফলাফল',recovery:'আরোগ্য অগ্রগতি',upcomingAppt:'আসন্ন অ্যাপয়েন্টমেন্ট',viewDetails:'বিস্তারিত দেখুন',allMeds:'সব ওষুধ',allResults:'সব ফলাফল',billingHistory:'বিলের ইতিহাস',careStatus:'চিকিৎসা অবস্থা',noUpcomingAppts:'কোনো আসন্ন অ্যাপয়েন্টমেন্ট নেই।',noBillsYet:'এখনও কোনো বিল নেই।',upcomingEvents:'আসন্ন ইভেন্ট',followReminders:'ফলো-আপ রিমাইন্ডার',addMedicine:'ওষুধ যোগ করুন',confirmAppt:'অ্যাপয়েন্টমেন্ট নিশ্চিত করুন',upcomingTab:'আসন্ন',completedTab:'সম্পন্ন',cancelledTab:'বাতিল',notifCenter:'বিজ্ঞপ্তি কেন্দ্র',profileSettings:'আমার তথ্য',emergencyBtn:'জরুরি',saveBtn:'সংরক্ষণ',closeBtn:'বন্ধ',payBtn:'পরিশোধ',pendingLbl:'বাকি',paidLbl:'পরিশোধিত',allBills:'সব বিল',verifyCenter:'ওষুধ যাচাই কেন্দ্র',loginAs:'লগইন হিসেবে',hospitalWord:'হাসপাতাল',patientDemo:'রোগী ডেমো',doctorDemo:'ডাক্তার ডেমো',hospitalDemo:'হাসপাতাল ডেমো',roleLbl:'ভূমিকা',emailAddress:'ইমেল ঠিকানা',emailPh:'আপনার ইমেল লিখুন',passPh:'আপনার পাসওয়ার্ড লিখুন',signIn:'লগইন',createAccount:'অ্যাকাউন্ট তৈরি করুন',demoAccounts:'→ ডেমো অ্যাকাউন্ট',demoHint:'ডেমো অ্যাকাউন্ট — প্রথম ব্যবহারে স্বয়ংক্রিয়ভাবে তৈরি হয়। পাসওয়ার্ড: demo123',demoFill:'ডেমো চেষ্টা করুন (নমুনা ডেটা)',healthStatus:'স্বাস্থ্য অবস্থা',nextApptLbl:'পরবর্তী অ্যাপয়েন্টমেন্ট',viewLink:'দেখুন →',viewAll:'সব দেখুন →',todaysMeds:'আজকের ওষুধ',waitingReview:'ডাক্তার পর্যালোচনার জন্য অপেক্ষমাণ',recoStart:'আরোগ্য ট্র্যাক করতে আপনার প্রথম কেস জমা দিন।',recoGreat:'আপনি খুব ভালো করছেন! চিকিৎসা পরিকল্পনা চালিয়ে যান।',recoDoing:'আপনি ভালো আছেন। বর্তমান চিকিৎসা পরিকল্পনা চালিয়ে যান।',activeSub:'সক্রিয়',upcomingSub:'আসন্ন',totalSub:'মোট',unreadSub:'অপঠিত',takenLbl:'খাওয়া হয়েছে',verifiedLbl:'যাচাইকৃত',markTaken:'খাওয়া হয়েছে চিহ্নিত করুন',followDue:'ফলো-আপ বাকি'},
+  mr: {dashboard:'डॅशबोर्ड',upcoming:'आगामी',mycase:'माझा केस',meds:'औषधे',results:'माझे निकाल',appts:'अपॉइंटमेंट',doctors:'माझे डॉक्टर',timeline:'टाइमलाइन',tracking:'आरोग्य आढावा',qr:'माझा QR',privacy:'गोपनीयता व प्रवेश',billing:'बिल',notifs:'सूचना',settings:'माझी माहिती',myinfo:'माझी माहिती',emergency:'आपत्कालीन',logout:'लॉगआउट',cases:'केस',verify:'औषध पडताळणी',chats:'संदेश',patients:'रुग्ण',dappts:'माझी अपॉइंटमेंट',earnings:'माझी कमाई',healthinput:'आरोग्य नोंद',hdash:'रुग्णालय डॅशबोर्ड',hpatients:'सर्व रुग्ण',hdoctors:'सर्व डॉक्टर',hcases:'सर्व केस',hmeds:'औषधे',hdocs:'दस्तऐवज पडताळणी',happts:'अपॉइंटमेंट',hupload:'निकाल अपलोड',greetM:'शुभ प्रभात',greetA:'नमस्कार',greetE:'शुभ संध्याकाळ',page:'MHD रुग्णालय',loginH:'पुन्हा स्वागत आहे',loginSub:'तुमच्या हेल्थ पोर्टलवर सुरू ठेवण्यासाठी लॉगिन करा',email:'ईमेल',password:'पासवर्ड',remember:'मला लक्षात ठेवा',forgot:'पासवर्ड विसरलात?',loginBtn:'लॉगिन',haveAcc:'खाते आहे का?',createAcc:'हेल्थ आयडी तयार करा',demoBtn:'डेमो लॉगिन',
+    register:'नोंदणी करा',welcomeBack:'पुन्हा आलात! पुढे जाण्यासाठी लॉगिन करा.',createAccSub:'पुढे जाण्यासाठी तुमचे MHD खाते तयार करा.',noAcc:'खाते नाही आहे?',fullName:'पूर्ण नाव',dob:'जन्म तारीख',gender:'लिंग',bloodGroup:'रक्तगट',phone:'फोन',address:'पत्ता',languageLbl:'भाषा',rolePatient:'रुग्ण',roleDoctor:'डॉक्टर',roleHospital:'हॉस्पिटल प्रशासक',registerDoctor:'डॉक्टर म्हणून नोंदणी',registerHospital:'हॉस्पिटल नोंदणी करा',
+    quickActions:'जलद कृती',bookAppt:'अपॉइंटमेंट बुक करा',talkDoctor:'डॉक्टरांशी बोला',newCase:'नवीन / माझा केस',todaySchedule:'आजचे वेळापत्रक',activeMeds:'सक्रिय औषधे',recentResults:'अलीकडील निकाल',recovery:'पुनर्प्राप्ती प्रगती',upcomingAppt:'आगामी अपॉइंटमेंट',viewDetails:'तपशील पहा',allMeds:'सर्व औषधे',allResults:'सर्व निकाल',billingHistory:'बिल इतिहास',careStatus:'काळजी स्थिती',noUpcomingAppts:'आगामी अपॉइंटमेंट नाहीत.',noBillsYet:'अजून बिल नाहीत.',upcomingEvents:'आगामी कार्यक्रम',followReminders:'फॉलो-अप स्मरणपत्रे',addMedicine:'औषध जोडा',confirmAppt:'अपॉइंटमेंट निश्चित करा',upcomingTab:'आगामी',completedTab:'पूर्ण',cancelledTab:'रद्द',notifCenter:'सूचना केंद्र',profileSettings:'माझी माहिती',emergencyBtn:'आपत्कालीन',saveBtn:'जतन करा',closeBtn:'बंद करा',payBtn:'पेमेंट करा',pendingLbl:'बाकी',paidLbl:'भरले',allBills:'सर्व बिल',verifyCenter:'औषध पडताळणी केंद्र',loginAs:'लॉगिन म्हणून',hospitalWord:'रुग्णालय',patientDemo:'रुग्ण डेमो',doctorDemo:'डॉक्टर डेमो',hospitalDemo:'हॉस्पिटल डेमो',roleLbl:'भूमिका',emailAddress:'ईमेल पत्ता',emailPh:'तुमचा ईमेल पत्ता टाका',passPh:'तुमचा पासवर्ड टाका',signIn:'लॉगिन',createAccount:'खाते तयार करा',demoAccounts:'→ डेमो खाती',demoHint:'डेमो खाती — पहिल्या वापरावर आपोआप तयार होतात. पासवर्ड: demo123',demoFill:'डेमो पहा (नमुना डेटा)',healthStatus:'आरोग्य स्थिती',nextApptLbl:'पुढील अपॉइंटमेंट',viewLink:'पहा →',viewAll:'सर्व पहा →',todaysMeds:'आजची औषधे',waitingReview:'डॉक्टर तपासणीसाठी प्रतीक्षा',recoStart:'पुनर्प्राप्ती मागोवा घेण्यासाठी तुमचे पहिले केस सबमिट करा.',recoGreat:'तुम्ही खूप छान करत आहात! काळजी योजना सुरू ठेवा.',recoDoing:'तुम्ही बरे आहात. वर्तमान काळजी योजना सुरू ठेवा.',activeSub:'सक्रिय',upcomingSub:'आगामी',totalSub:'एकूण',unreadSub:'न वाचलेले',takenLbl:'घेतले',verifiedLbl:'पडताळले',markTaken:'घेतले असे चिन्हांकित करा',followDue:'फॉलो-अप बाकी'},
+  gu: {dashboard:'ડેશબોર્ડ',upcoming:'આગામી',mycase:'મારો કેસ',meds:'દવાઓ',results:'મારા પરિણામો',appts:'એપોઇન્ટમેન્ટ',doctors:'મારા ડૉક્ટર',timeline:'ટાઇમલાઇન',tracking:'આરોગ્ય ઝાંખી',qr:'મારો QR',privacy:'ગોપનીયતા અને પ્રવેશ',billing:'બિલ',notifs:'સૂચનાઓ',settings:'મારી માહિતી',myinfo:'મારી માહિતી',emergency:'કટોકટી',logout:'લોગ આઉટ',cases:'કેસ',verify:'દવા ચકાસણી',chats:'સંદેશા',patients:'દર્દીઓ',dappts:'મારી એપોઇન્ટમેન્ટ',earnings:'મારી કમાણી',healthinput:'આરોગ્ય એન્ટ્રી',hdash:'હોસ્પિટલ ડેશબોર્ડ',hpatients:'બધા દર્દીઓ',hdoctors:'બધા ડૉક્ટર',hcases:'બધા કેસ',hmeds:'દવાઓ',hdocs:'દસ્તાવેજ ચકાસણી',happts:'એપોઇન્ટમેન્ટ',hupload:'પરિણામ અપલોડ',greetM:'સુપ્રભાત',greetA:'શુભ બપોર',greetE:'શુભ સાંજ',page:'MHD હોસ્પિટલ',loginH:'ફરી સ્વાગત છે',loginSub:'તમારા હેલ્થ પોર્ટલ પર આગળ વધવા લોગિન કરો',email:'ઈમેલ',password:'પાસવર્ડ',remember:'મને યાદ રાખો',forgot:'પાસવર્ડ ભૂલી ગયા?',loginBtn:'લોગિન',haveAcc:'ખાતું છે?',createAcc:'હેલ્થ આઈડી બનાવો',demoBtn:'ડેમો લોગિન',
+    register:'નોંધણી કરો',welcomeBack:'પાછા આવ્યા તમને સ્વાગત! ચાલુ રાખવા લોગિન કરો.',createAccSub:'ચાલુ રાખવા તમારું MHD ખાતું બનાવો.',noAcc:'ખાતું નથી?',fullName:'પૂરું નામ',dob:'જન્મ તારીખ',gender:'લિંગ',bloodGroup:'લોહી જૂથ',phone:'ફોન',address:'સરનામું',languageLbl:'ભાષા',rolePatient:'દર્દી',roleDoctor:'ડૉક્ટર',roleHospital:'હોસ્પિટલ એડમિન',registerDoctor:'ડૉક્ટર તરીકે નોંધણી',registerHospital:'હોસ્પિટલ નોંધણી કરો',
+    quickActions:'ઝડપી ક્રિયાઓ',bookAppt:'એપોઇન્ટમેન્ટ બુક કરો',talkDoctor:'ડૉક્ટર સાથે વાત કરો',newCase:'નવો / મારો કેસ',todaySchedule:'આજનો શેડ્યૂલ',activeMeds:'સક્રિય દવાઓ',recentResults:'તાજા પરિણામો',recovery:'સ્વસ્થતા પ્રગતિ',upcomingAppt:'આગામી એપોઇન્ટમેન્ટ',viewDetails:'વિગતો જુઓ',allMeds:'બધી દવાઓ',allResults:'બધા પરિણામો',billingHistory:'બિલ ઇતિહાસ',careStatus:'સંભાળ સ્થિતિ',noUpcomingAppts:'કોઈ આગામી એપોઇન્ટમેન્ટ નથી.',noBillsYet:'હજુ બિલ નથી.',upcomingEvents:'આગામી કાર્યક્રમો',followReminders:'ફોલો-અપ રીમાઈન્ડર',addMedicine:'દવા ઉમેરો',confirmAppt:'એપોઇન્ટમેન્ટ પકકી કરો',upcomingTab:'આગામી',completedTab:'પૂર્ણ',cancelledTab:'રદ',notifCenter:'સૂચના કેન્દ્ર',profileSettings:'મારી માહિતી',emergencyBtn:'કટોકટી',saveBtn:'સાચવો',closeBtn:'બંધ કરો',payBtn:'ચૂકવો',pendingLbl:'બાકી',paidLbl:'ચૂકવેલ',allBills:'બધા બિલ',verifyCenter:'દવા ચકાસણી કેન્દ્ર',loginAs:'લોગિન તરીકે',hospitalWord:'હોસ્પિટલ',patientDemo:'દર્દી ડેમો',doctorDemo:'ડૉક્ટર ડેમો',hospitalDemo:'હોસ્પિટલ ડેમો',roleLbl:'भूमिका',emailAddress:'ઈમેલ સરનામું',emailPh:'તમારું ઈમેલ લખો',passPh:'તમારો પાસવર્ડ લખો',signIn:'લોગિન',createAccount:'ખાતું બનાવો',demoAccounts:'→ ડેમો ખાતાઓ',demoHint:'ડેમો ખાતા — પહેલી વાર વાપરવાથી આપોઆપ બને છે. પાસવર્ડ: demo123',demoFill:'ડેમો અજમાવો (નમૂનો ડેટા)',healthStatus:'આરોગ્ય સ્થિતિ',nextApptLbl:'આગામી એપોઇન્ટમેન્ટ',viewLink:'જુઓ →',viewAll:'બધું જુઓ →',todaysMeds:'આજની દવાઓ',waitingReview:'ડૉક્ટર સમીક્ષા માટે રાહ જોવાય છે',recoStart:'સ્વસ્થતા ટ્રેક કરવા તમારો પહેલો કેસ સબમિટ કરો.',recoGreat:'તમે ખૂબ સારું કરી રહ્યા છો! સંભાળ યોજના ચાલુ રાખો.',recoDoing:'તમે સારા છો. વર્તમાન સંભાળ યોજના ચાલુ રાખો.',activeSub:'સક્રિય',upcomingSub:'આગામી',totalSub:'કુલ',unreadSub:'ન વંચાયેલ',takenLbl:'લીધું',verifiedLbl:'ચકાસેલ',markTaken:'લીધું ચિહ્નિત કરો',followDue:'ફોલો-અપ બાકી'},
+  pa: {dashboard:'ਡੈਸ਼ਬੋਰਡ',upcoming:'ਆਉਣ ਵਾਲੇ',mycase:'ਮੇਰਾ ਕੇਸ',meds:'ਦਵਾਈਆਂ',results:'ਮੇਰੇ ਨਤੀਜੇ',appts:'ਅਪਾਇੰਟਮੈਂਟ',doctors:'ਮੇਰੇ ਡਾਕਟਰ',timeline:'ਟਾਈਮਲਾਈਨ',tracking:'ਸਿਹਤ ਝਲਕ',qr:'ਮੇਰਾ QR',privacy:'ਗੁਪਤਤਾ ਅਤੇ ਪਹੁੰਚ',billing:'ਬਿੱਲ',notifs:'ਸੂਚਨਾਵਾਂ',settings:'ਮੇਰੀ ਜਾਣਕਾਰੀ',myinfo:'ਮੇਰੀ ਜਾਣਕਾਰੀ',emergency:'ਐਮਰਜੈਂਸੀ',logout:'ਲੌਗ ਆਉਟ',cases:'ਕੇਸ',verify:'ਦਵਾਈ ਪੁਸ਼ਟੀ',chats:'ਸੁਨੇਹੇ',patients:'ਮਰੀਜ਼',dappts:'ਮੇਰੀਆਂ ਅਪਾਇੰਟਮੈਂਟਾਂ',earnings:'ਮੇਰੀ ਕਮਾਈ',healthinput:'ਸਿਹਤ ਐਂਟਰੀ',hdash:'ਹਸਪਤਾਲ ਡੈਸ਼ਬੋਰਡ',hpatients:'ਸਾਰੇ ਮਰੀਜ਼',hdoctors:'ਸਾਰੇ ਡਾਕਟਰ',hcases:'ਸਾਰੇ ਕੇਸ',hmeds:'ਦਵਾਈਆਂ',hdocs:'ਦਸਤਾਵੇਜ਼ ਪੁਸ਼ਟੀ',happts:'ਅਪਾਇੰਟਮੈਂਟ',hupload:'ਨਤੀਜਾ ਅੱਪਲੋਡ',greetM:'ਸ਼ੁਭ ਸਵੇਰ',greetA:'ਸ਼ੁਭ ਦੁਪਹਿਰ',greetE:'ਸ਼ੁਭ ਸ਼ਾਮ',page:'MHD ਹਸਪਤਾਲ',loginH:'ਮੁੜ ਜੀ ਆਇਆਂ ਨੂੰ',loginSub:'ਆਪਣੇ ਸਿਹਤ ਪੋਰਟਲ ਤੱਕ ਜਾਰੀ ਰੱਖਣ ਲਈ ਲੌਗਿਨ ਕਰੋ',email:'ਈਮੇਲ',password:'ਪਾਸਵਰਡ',remember:'ਮੈਨੂੰ ਯਾਦ ਰੱਖੋ',forgot:'ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ?',loginBtn:'ਲੌਗਿਨ',haveAcc:'ਖਾਤਾ ਹੈ?',createAcc:'ਸਿਹਤ ਆਈਡੀ ਬਣਾਓ',demoBtn:'ਡੈਮੋ ਲੌਗਿਨ',
+    register:'ਰਜਿਸਟਰ ਕਰੋ',welcomeBack:'ਵਾਪਸ ਆਉਣ ਲਈ ਜੀ ਆਇਆਂ! ਜਾਰੀ ਰੱਖਣ ਲਈ ਲੌਗਿਨ ਕਰੋ।',createAccSub:'ਜਾਰੀ ਰੱਖਣ ਲਈ ਆਪਣਾ MHD ਖਾਤਾ ਬਣਾਓ।',noAcc:'ਖਾਤਾ ਨਹੀਂ ਹੈ?',fullName:'ਪੂਰਾ ਨਾਮ',dob:'ਜਨਮ ਤਾਰੀਖ',gender:'ਲਿੰਗ',bloodGroup:'ਖੂਨ ਦੀ ਕਿਸਮ',phone:'ਫੋਨ',address:'ਪਤਾ',languageLbl:'ਭਾਸ਼ਾ',rolePatient:'ਮਰੀਜ਼',roleDoctor:'ਡਾਕਟਰ',roleHospital:'ਹਸਪਤਾਲ ਪ੍ਰਬੰਧਕ',registerDoctor:'ਡਾਕਟਰ ਵਜੋਂ ਰਜਿਸਟਰ',registerHospital:'ਹਸਪਤਾਲ ਰਜਿਸਟਰ ਕਰੋ',
+    quickActions:'ਤੇਜ਼ ਕਾਰਜ',bookAppt:'ਅਪਾਇੰਟਮੈਂਟ ਬੁੱਕ ਕਰੋ',talkDoctor:'ਡਾਕਟਰ ਨਾਲ ਗੱਲ ਕਰੋ',newCase:'ਨਵਾਂ / ਮੇਰਾ ਕੇਸ',todaySchedule:'ਅੱਜ ਦਾ ਸ਼ਡਿਊਲ',activeMeds:'ਸਰਗਰਮ ਦਵਾਈਆਂ',recentResults:'ਹਾਲੀਆ ਨਤੀਜੇ',recovery:'ਰਿਕਵਰੀ ਤਰੱਕੀ',upcomingAppt:'ਆਉਣ ਵਾਲੀ ਅਪਾਇੰਟਮੈਂਟ',viewDetails:'ਵੇਰਵੇ ਵੇਖੋ',allMeds:'ਸਾਰੀਆਂ ਦਵਾਈਆਂ',allResults:'ਸਾਰੇ ਨਤੀਜੇ',billingHistory:'ਬਿੱਲ ਇਤਿਹਾਸ',careStatus:'ਦੇਖਭਾਲ ਸਥਿਤੀ',noUpcomingAppts:'ਕੋਈ ਆਉਣ ਵਾਲੀ ਅਪਾਇੰਟਮੈਂਟ ਨਹੀਂ।',noBillsYet:'ਹਾਲੇ ਕੋਈ ਬਿੱਲ ਨਹੀਂ।',upcomingEvents:'ਆਉਣ ਵਾਲੇ ਸਮਾਗਮ',followReminders:'ਫਾਲੋ-ਅੱਪ ਰੀਮਾਈਂਡਰ',addMedicine:'ਦਵਾਈ ਸ਼ਾਮਲ ਕਰੋ',confirmAppt:'ਅਪਾਇੰਟਮੈਂਟ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ',upcomingTab:'ਆਉਣ ਵਾਲੇ',completedTab:'ਪੂਰੇ ਹੋਏ',cancelledTab:'ਰੱਦ',notifCenter:'ਸੂਚਨਾ ਕੇਂਦਰ',profileSettings:'ਮੇਰੀ ਜਾਣਕਾਰੀ',emergencyBtn:'ਐਮਰਜੈਂਸੀ',saveBtn:'ਸੰਭਾਲੋ',closeBtn:'ਬੰਦ ਕਰੋ',payBtn:'ਭੁਗਤਾਨ ਕਰੋ',pendingLbl:'ਬਾਕੀ',paidLbl:'ਭੁਗਤਾਨ ਹੋਇਆ',allBills:'ਸਾਰੇ ਬਿੱਲ',verifyCenter:'ਦਵਾਈ ਪੁਸ਼ਟੀ ਕੇਂਦਰ',loginAs:'ਲੌਗਿਨ ਵਜੋਂ',hospitalWord:'ਹਸਪਤਾਲ',patientDemo:'ਮਰੀਜ਼ ਡੈਮੋ',doctorDemo:'ਡਾਕਟਰ ਡੈਮੋ',hospitalDemo:'ਹਸਪਤਾਲ ਡੈਮੋ',roleLbl:'ਭੂਮਿਕਾ',emailAddress:'ਈਮੇਲ ਪਤਾ',emailPh:'ਆਪਣਾ ਈਮੇਲ ਦਰਜ ਕਰੋ',passPh:'ਆਪਣਾ ਪਾਸਵਰਡ ਦਰਜ ਕਰੋ',signIn:'ਲੌਗਿਨ',createAccount:'ਖਾਤਾ ਬਣਾਓ',demoAccounts:'→ ਡੈਮੋ ਖਾਤੇ',demoHint:'ਡੈਮੋ ਖਾਤੇ — ਪਹਿਲੀ ਵਾਰ ਵਰਤਣ ਤੇ ਆਪਣੇ-ਆਪ ਬਣ ਜਾਂਦੇ ਹਨ। ਪਾਸਵਰਡ: demo123',demoFill:'ਡੈਮੋ ਅਜ਼ਮਾਓ (ਨਮੂਨਾ ਡਾਟਾ)',healthStatus:'ਸਿਹਤ ਸਥਿਤੀ',nextApptLbl:'ਅਗਲੀ ਅਪਾਇੰਟਮੈਂਟ',viewLink:'ਵੇਖੋ →',viewAll:'ਸਭ ਵੇਖੋ →',todaysMeds:'ਅੱਜ ਦੀਆਂ ਦਵਾਈਆਂ',waitingReview:'ਡਾਕਟਰ ਸਮੀਖਿਆ ਲਈ ਉਡੀਕ',recoStart:'ਰਿਕਵਰੀ ਟ੍ਰੈਕ ਕਰਨ ਲਈ ਆਪਣਾ ਪਹਿਲਾ ਕੇਸ ਸਬਮਿਟ ਕਰੋ।',recoGreat:'ਤੁਸੀਂ ਬਹੁਤ ਵਧੀਆ ਕਰ ਰਹੇ ਹੋ! ਦੇਖਭਾਲ ਯੋਜਨਾ ਜਾਰੀ ਰੱਖੋ।',recoDoing:'ਤੁਸੀਂ ਠੀਕ ਹੋ। ਮੌਜੂਦਾ ਦੇਖਭਾਲ ਯੋਜਨਾ ਜਾਰੀ ਰੱਖੋ।',activeSub:'ਸਰਗਰਮ',upcomingSub:'ਆਉਣ ਵਾਲੇ',totalSub:'ਕੁੱਲ',unreadSub:'ਨਾ ਪੜ੍ਹੇ',takenLbl:'ਲਈ ਗਈ',verifiedLbl:'ਪੁਸ਼ਟੀਕਰਤ',markTaken:'ਲਈ ਗਈ ਨਿਸ਼ਾਨਦੇਹ ਕਰੋ',followDue:'ਫਾਲੋ-ਅੱਪ ਬਾਕੀ'},
+};
+
+let CUR_LANG: string = 'en';
+try {
+  const stored = localStorage.getItem('mhd_lang') || 'en';
+  CUR_LANG = I18N[stored] ? stored : 'en';
+} catch { /* ignore */ }
+
+export const curLang = () => CUR_LANG;
+
+/* ============================================================
+   LANDING PAGE STRINGS — keys are the exact English sentences
+   shown on the marketing home page. The DOM-walking translator
+   matches leaf text nodes against the en values, so adding a
+   row here instantly translates the landing page too.
+   ============================================================ */
+const LANDING_I18N: Record<string, Dict> = {
+  en: {
+    'Home': 'Home', 'About Us': 'About Us', 'Our Network': 'Our Network', 'Services': 'Services', 'Contact': 'Contact',
+    'Connected Healthcare • Real-Time Care': 'Connected Healthcare • Real-Time Care',
+    'A unified digital health identity': 'A unified digital health identity',
+    'One patient. One record. One connected journey.': 'One patient. One record. One connected journey.',
+    'A premium, paperless healthcare ecosystem connecting patients, caretakers, doctors, hospitals and administrators through one synchronized digital experience.': 'A premium, paperless healthcare ecosystem connecting patients, caretakers, doctors, hospitals and administrators through one synchronized digital experience.',
+    'Explore Portals': 'Explore Portals', 'Try Patient Demo': 'Try Patient Demo',
+    'Secure & Compliant': 'Secure & Compliant', 'Your data. Our priority.': 'Your data. Our priority.',
+    'Multi-Level Access': 'Multi-Level Access', 'Every role. One network.': 'Every role. One network.',
+    'Better Outcomes': 'Better Outcomes', 'Connected for healthier tomorrows.': 'Connected for healthier tomorrows.',
+    'Our vision': 'Our vision', 'Discover our mission': 'Discover our mission',
+    'Interactive preview': 'Interactive preview', 'Explore the platform with': 'Explore the platform with', 'demo access.': 'demo access.',
+    'These cards use the existing demo-account flow. No new authentication logic is introduced.': 'These cards use the existing demo-account flow. No new authentication logic is introduced.',
+    'One ecosystem • four access points': 'One ecosystem • four access points',
+    "Every portal is connected to the same real-time health ecosystem while keeping access focused on the user's role.": "Every portal is connected to the same real-time health ecosystem while keeping access focused on the user's role.",
+    'Benefits': 'Benefits', 'Why': 'Why', 'matters.': 'matters.',
+    'Patient': 'Patient', 'Caretaker': 'Caretaker', 'Doctor': 'Doctor', 'Hospital': 'Hospital',
+    'Own your lifelong health identity, records, medicines and care journey.': 'Own your lifelong health identity, records, medicines and care journey.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'Coordinate medicines, care tasks and patient updates with confidence.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'Review verified records, vitals, prescriptions and patient history faster.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'Manage hospital operations, doctors, patients, records and appointments.',
+    'Sign in': 'Sign in', 'Create account': 'Create account',
+    'Patient Demo': 'Patient Demo', 'Caretaker Demo': 'Caretaker Demo', 'Doctor Demo': 'Doctor Demo', 'Hospital Demo': 'Hospital Demo',
+    'Demo environment': 'Demo environment', 'Launch': 'Launch',
+    'Choose your ': 'Choose your ', 'care portal.': 'care portal.',
+    'Lifelong Digital Health Identity': 'Lifelong Digital Health Identity',
+    'Voice-First, Inclusive Care': 'Voice-First, Inclusive Care',
+    'Records Doctors Can Verify in Seconds': 'Records Doctors Can Verify in Seconds',
+    'QR Access During the Golden Hour': 'QR Access During the Golden Hour',
+    'Five Connected Portals, One Ecosystem': 'Five Connected Portals, One Ecosystem',
+  },
+  hi: {
+    'Home': 'होम', 'About Us': 'हमारे बारे में', 'Our Network': 'हमारा नेटवर्क', 'Services': 'सेवाएँ', 'Contact': 'संपर्क',
+    'Connected Healthcare • Real-Time Care': 'जुड़ी हुई स्वास्थ्य सेवा • रीयल-टाइम देखभाल',
+    'A unified digital health identity': 'एक एकीकृत डिजिटल स्वास्थ्य पहचान',
+    'One patient. One record. One connected journey.': 'एक मरीज़। एक रिकॉर्ड। एक जुड़ा हुआ सफ़र।',
+    'A premium, paperless healthcare ecosystem connecting patients, caretakers, doctors, hospitals and administrators through one synchronized digital experience.': 'एक बेहतरीन, कागज़-रहित स्वास्थ्य सेवा तंत्र जो मरीज़ों, देखभालकर्ताओं, डॉक्टरों, अस्पतालों और प्रशासकों को एक ही डिजिटल अनुभव से जोड़ता है।',
+    'Explore Portals': 'पोर्टल देखें', 'Try Patient Demo': 'मरीज़ डेमो आज़माएँ',
+    'Secure & Compliant': 'सुरक्षित और अनुपालनशील', 'Your data. Our priority.': 'आपका डेटा। हमारी प्राथमिकता।',
+    'Multi-Level Access': 'बहु-स्तरीय पहुँच', 'Every role. One network.': 'हर भूमिका। एक नेटवर्क।',
+    'Better Outcomes': 'बेहतर परिणाम', 'Connected for healthier tomorrows.': 'स्वस्थ कल के लिए जुड़े हुए।',
+    'Our vision': 'हमारा दृष्टिकोण', 'Discover our mission': 'हमारा मिशन जानें',
+    'Interactive preview': 'इंटरैक्टिव प्रीव्यू', 'Explore the platform with': 'प्लेटफ़ॉर्म देखें', 'demo access.': 'डेमो एक्सेस के साथ।',
+    'These cards use the existing demo-account flow. No new authentication logic is introduced.': 'ये कार्ड मौजूदा डेमो-अकाउंट प्रक्रिया का उपयोग करते हैं। कोई नया लॉगिन तरीका नहीं जोड़ा गया है।',
+    'One ecosystem • four access points': 'एक तंत्र • चार पहुँच बिंदु',
+    "Every portal is connected to the same real-time health ecosystem while keeping access focused on the user's role.": 'हर पोर्टल उसी रीयल-टाइम स्वास्थ्य तंत्र से जुड़ा है और पहुँच सिर्फ़ उपयोगकर्ता की भूमिका तक सीमित है।',
+    'Benefits': 'लाभ', 'Why': 'क्यों', 'matters.': 'ज़रूरी है।',
+    'Patient': 'मरीज़', 'Caretaker': 'देखभालकर्ता', 'Doctor': 'डॉक्टर', 'Hospital': 'अस्पताल',
+    'Own your lifelong health identity, records, medicines and care journey.': 'अपनी आजीवन स्वास्थ्य पहचान, रिकॉर्ड, दवाइयाँ और देखभाल यात्रा अपने पास रखें।',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'दवाइयाँ, देखभाल कार्य और मरीज़ अपडेट पर भरोसा के साथ नज़र रखें।',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'सत्यापित रिकॉर्ड, वाइटल्स, प्रिस्क्रिप्शन और इतिहास तेज़ी से देखें।',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'अस्पताल संचालन, डॉक्टर, मरीज़, रिकॉर्ड और अपॉइंटमेंट प्रबंधित करें।',
+    'Sign in': 'साइन इन', 'Create account': 'खाता बनाएँ',
+    'Patient Demo': 'मरीज़ डेमो', 'Caretaker Demo': 'देखभालकर्ता डेमो', 'Doctor Demo': 'डॉक्टर डेमो', 'Hospital Demo': 'अस्पताल डेमो',
+    'Demo environment': 'डेमो वातावरण', 'Launch': 'खोलें',
+    'Choose your ': 'अपना ', 'care portal.': 'केयर पोर्टल चुनें।',
+    'Lifelong Digital Health Identity': 'आजीवन डिजिटल स्वास्थ्य पहचान',
+    'Voice-First, Inclusive Care': 'आवाज़-प्रथम, सबके लिए देखभाल',
+    'Records Doctors Can Verify in Seconds': 'रिकॉर्ड जो डॉक्टर सेकंडों में सत्यापित करें',
+    'QR Access During the Golden Hour': 'गोल्डन आवर में QR पहुँच',
+    'Five Connected Portals, One Ecosystem': 'पाँच जुड़े पोर्टल, एक तंत्र',
+  },
+  ta: {
+    'Home': 'முகப்பு', 'About Us': 'எங்களைப் பற்றி', 'Our Network': 'எங்கள் வலையமைப்பு', 'Services': 'சேவைகள்', 'Contact': 'தொடர்பு',
+    'Connected Healthcare • Real-Time Care': 'இணைக்கப்பட்ட சுகாதாரம் • நேரடி கவனிப்பு',
+    'A unified digital health identity': 'ஒருங்கிணைந்த டிஜிட்டல் சுகாதார அடையாளம்',
+    'One patient. One record. One connected journey.': 'ஒரு நோயாளி. ஒரு பதிவு. ஒரு இணைந்த பயணம்.',
+    'Explore Portals': 'போர்ட்டல்களைப் பார்க்க', 'Try Patient Demo': 'நோயாளி டெமோ முயற்சிக்க',
+    'Secure & Compliant': 'பாதுகாப்பானதும் இணங்குவதும்', 'Your data. Our priority.': 'உங்கள் தரவு. எங்கள் முன்னுரிமை.',
+    'Multi-Level Access': 'பல-நிலை அணுகல்', 'Every role. One network.': 'ஒவ்வொரு பங்கும். ஒரே வலையமைப்பு.',
+    'Better Outcomes': 'சிறந்த முடிவுகள்', 'Connected for healthier tomorrows.': 'நலமான நாளைக்காக இணைக்கப்பட்டது.',
+    'Our vision': 'எங்கள் நோக்கு', 'Discover our mission': 'எங்கள் நோக்கத்தை அறிக',
+    'Benefits': 'நன்மைகள்', 'Patient': 'நோயாளி', 'Caretaker': 'பராமரிப்பாளர்', 'Doctor': 'மருத்துவர்', 'Hospital': 'மருத்துவமனை',
+    'Sign in': 'உள்நுழை', 'Create account': 'கணக்கு உருவாக்கு',
+    'Patient Demo': 'நோயாளி டெமோ', 'Caretaker Demo': 'பராமரிப்பாளர் டெமோ', 'Doctor Demo': 'மருத்துவர் டெமோ', 'Hospital Demo': 'மருத்துவமனை டெமோ',
+    'Demo environment': 'டெமோ சூழல்', 'Launch': 'திற',
+    'Lifelong Digital Health Identity': 'வாழ்நாள் டிஜிட்டல் சுகாதார அடையாளம்',
+    'Voice-First, Inclusive Care': 'குரல்-முதன்மை, அனைவருக்கும் கவனிப்பு',
+    'Records Doctors Can Verify in Seconds': 'மருத்துவர்கள் விநாடிகளில் சரிபார்க்கும் பதிவுகள்',
+    'QR Access During the Golden Hour': 'கோல்டன் அவரில் QR அணுகல்',
+    'Five Connected Portals, One Ecosystem': 'ஐந்து இணைந்த போர்ட்டல்கள், ஒரே சூழல்',
+    'Own your lifelong health identity, records, medicines and care journey.': 'உங்கள் ஆயுள் சுகாதார அடையாளம், பதிவுகள், மருந்துகள் மற்றும் சிகிச்சை பயணத்தை நீங்களே வைத்திருங்கள்.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'மருந்துகள், கவனிப்பு பணிகள் மற்றும் நோயாளி தகவல்களை நம்பிக்கையுடன் நிர்வகிக்கவும்.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'சரிபார்க்கப்பட்ட பதிவுகள், உயிர்நிலை அறிகுறிகள் மற்றும் வரலாற்றை விரைவாக பாருங்கள்.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'மருத்துவமனை செயல்பாடுகள், மருத்துவர்கள், நோயாளிகள், பதிவுகளை நிர்வகிக்கவும்.',
+  },
+  te: {
+    'Home': 'హోమ్', 'About Us': 'మా గురించి', 'Our Network': 'మా నెట్‌వర్క్', 'Services': 'సేవలు', 'Contact': 'సంప్రదించండి',
+    'Connected Healthcare • Real-Time Care': 'అనుసంధాన ఆరోగ్య సంరక్షణ • రియల్-టైమ్ సేవ',
+    'A unified digital health identity': 'ఏకీకృత డిజిటల్ ఆరోగ్య గుర్తింపు',
+    'One patient. One record. One connected journey.': 'ఒక రోగి. ఒక రికార్డ్. ఒక అనుసంధాన ప్రయాణం.',
+    'Explore Portals': 'పోర్టల్స్ చూడండి', 'Try Patient Demo': 'రోగి డెమో ప్రయత్నించండి',
+    'Secure & Compliant': 'సురక్షితమైనది', 'Your data. Our priority.': 'మీ డేటా. మా ప్రాధాన్యత.',
+    'Multi-Level Access': 'బహుళ-స్థాయి ప్రవేశం', 'Every role. One network.': 'ప్రతి పాత్ర. ఒకే నెట్‌వర్క్.',
+    'Better Outcomes': 'మెరుగైన ఫలితాలు', 'Connected for healthier tomorrows.': 'ఆరోగ్యకర భవిష్యత్తు కోసం అనుసంధానం.',
+    'Our vision': 'మా దృష్టి', 'Discover our mission': 'మా లక్ష్యాన్ని తెలుసుకోండి',
+    'Benefits': 'ప్రయోజనాలు', 'Patient': 'రోగి', 'Caretaker': 'సంరక్షకుడు', 'Doctor': 'వైద్యుడు', 'Hospital': 'ఆసుపత్రి',
+    'Sign in': 'సైన్ ఇన్', 'Create account': 'ఖాతా సృష్టించండి',
+    'Patient Demo': 'రోగి డెమో', 'Caretaker Demo': 'సంరక్షక డెమో', 'Doctor Demo': 'వైద్యుడు డెమో', 'Hospital Demo': 'ఆసుపత్రి డెమో',
+    'Demo environment': 'డెమో వాతావరణం', 'Launch': 'తెరవండి',
+    'Lifelong Digital Health Identity': 'జీవితకాల డిజిటల్ ఆరోగ్య గుర్తింపు',
+    'Voice-First, Inclusive Care': 'వాయిస్-ప్రథమ, అందరికీ సంరక్షణ',
+    'Records Doctors Can Verify in Seconds': 'వైద్యులు క్షణాల్లో ధృవీకరించే రికార్డులు',
+    'QR Access During the Golden Hour': 'గోల్డెన్ అవర్‌లో QR ప్రవేశం',
+    'Five Connected Portals, One Ecosystem': 'ఐదు అనుసంధాన పోర్టల్స్, ఒకే వ్యవస్థ',
+    'Own your lifelong health identity, records, medicines and care journey.': 'మీ జీవితకాల ఆరోగ్య గుర్తింపు, రికార్డులు, మందులు మరియు చికిత్స ప్రయాణాన్ని మీ వద్ద ఉంచుకోండి.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'మందులు, సంరక్షణ పనులు మరియు రోగి సమాచారాన్ని నమ్మకంగా నిర్వహించండి.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'ధృవీకరించిన రికార్డులు, వైటల్స్ మరియు చరిత్రను వేగంగా చూడండి.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'ఆసుపత్రి కార్యకలాపాలు, వైద్యులు, రోగులు, రికార్డులను నిర్వహించండి.',
+  },
+  ml: {
+    'Home': 'ഹോം', 'About Us': 'ഞങ്ങളെക്കുറിച്ച്', 'Our Network': 'ഞങ്ങളുടെ നെറ്റ്‌വർക്ക്', 'Services': 'സേവനങ്ങൾ', 'Contact': 'ബന്ധപ്പെടുക',
+    'Connected Healthcare • Real-Time Care': 'ബന്ധിപ്പിച്ച ആരോഗ്യ സംരക്ഷണം • റിയൽ-ടൈം പരിചരണം',
+    'A unified digital health identity': 'ഏകീകൃത ഡിജിറ്റൽ ആരോഗ്യ ഐഡന്റിറ്റി',
+    'One patient. One record. One connected journey.': 'ഒരു രോഗി. ഒരു രേഖ. ഒരു ബന്ധിത യാത്ര.',
+    'Explore Portals': 'പോർട്ടലുകൾ കാണുക', 'Try Patient Demo': 'രോഗി ഡെമോ പരീക്ഷിക്കുക',
+    'Secure & Compliant': 'സുരക്ഷിതവും അനുസരണപരവും', 'Your data. Our priority.': 'നിങ്ങളുടെ വിവരം. ഞങ്ങളുടെ മുൻഗണന.',
+    'Multi-Level Access': 'ബഹു-തല പ്രവേശനം', 'Every role. One network.': 'ഓരോ റോളും. ഒരു നെറ്റ്‌വർക്ക്.',
+    'Better Outcomes': 'മികച്ച ഫലങ്ങൾ', 'Connected for healthier tomorrows.': 'ആരോഗ്യമുള്ള നാളെകൾക്കായി ബന്ധിപ്പിച്ചു.',
+    'Our vision': 'ഞങ്ങളുടെ ദർശനം', 'Discover our mission': 'ഞങ്ങളുടെ ലക്ഷ്യം അറിയുക',
+    'Benefits': 'നേട്ടങ്ങൾ', 'Patient': 'രോഗി', 'Caretaker': 'പരിചാരകൻ', 'Doctor': 'ഡോക്ടർ', 'Hospital': 'ആശുപത്രി',
+    'Sign in': 'സൈൻ ഇൻ', 'Create account': 'അക്കൗണ്ട് സൃഷ്ടിക്കുക',
+    'Patient Demo': 'രോഗി ഡെമോ', 'Caretaker Demo': 'പരിചാരക ഡെമോ', 'Doctor Demo': 'ഡോക്ടർ ഡെമോ', 'Hospital Demo': 'ആശുപത്രി ഡെമോ',
+    'Demo environment': 'ഡെമോ പരിതി', 'Launch': 'തുറക്കുക',
+    'Lifelong Digital Health Identity': 'ജീവിതകാല ഡിജിറ്റൽ ആരോഗ്യ ഐഡന്റിറ്റി',
+    'Voice-First, Inclusive Care': 'വോയ്സ്-ആദ്യം, എല്ലാവർക്കും പരിചരണം',
+    'Records Doctors Can Verify in Seconds': 'ഡോക്ടർമാർക്ക് നിമിഷങ്ങൾക്കുള്ളിൽ സ്ഥിരീകരിക്കാവുന്ന രേഖകൾ',
+    'QR Access During the Golden Hour': 'ഗോൾഡൻ അവറിൽ QR പ്രവേശനം',
+    'Five Connected Portals, One Ecosystem': 'അഞ്ച് ബന്ധിപ്പിച്ച പോർട്ടലുകൾ, ഒരു സംവിധാനം',
+    'Own your lifelong health identity, records, medicines and care journey.': 'ജീവിതകാല ആരോഗ്യ ഐഡന്റിറ്റി, രേഖകൾ, മരുന്നുകൾ, ചികിത്സാ യാത്ര നിങ്ങളുടെ കൈയിൽ.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'മരുന്നുകൾ, പരിചരണ ജോലികൾ, രോഗി വിവരങ്ങൾ ആത്മവിശ്വാസത്തോടെ കൈകാര്യം ചെയ്യുക.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'സ്ഥിരീകരിച്ച രേഖകൾ, വൈറ്റൽസ്, ചരിത്രം വേഗത്തിൽ കാണുക.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'ആശുപത്രി പ്രവർത്തനങ്ങൾ, ഡോക്ടർമാർ, രോഗികൾ, രേഖകൾ കൈകാര്യം ചെയ്യുക.',
+  },
+  kn: {
+    'Home': 'ಮುಖಪುಟ', 'About Us': 'ನಮ್ಮ ಬಗ್ಗೆ', 'Our Network': 'ನಮ್ಮ ಜಾಲ', 'Services': 'ಸೇವೆಗಳು', 'Contact': 'ಸಂಪರ್ಕ',
+    'Connected Healthcare • Real-Time Care': 'ಸಂಪರ್ಕಿತ ಆರೋಗ್ಯ ರಕ್ಷಣೆ • ರಿಯಲ್-ಟೈಮ್ ಆರೈಕೆ',
+    'A unified digital health identity': 'ಏಕೀಕೃತ ಡಿಜಿಟಲ್ ಆರೋಗ್ಯ ಗುರುತು',
+    'One patient. One record. One connected journey.': 'ಒಬ್ಬ ರೋಗಿ. ಒಂದು ದಾಖಲೆ. ಒಂದು ಸಂಪರ್ಕಿತ ಪಯಣ.',
+    'Explore Portals': 'ಪೋರ್ಟಲ್‌ಗಳನ್ನು ನೋಡಿ', 'Try Patient Demo': 'ರೋಗಿ ಡೆಮೊ ಪ್ರಯತ್ನಿಸಿ',
+    'Secure & Compliant': 'ಸುರಕ್ಷಿತ ಮತ್ತು ಅನುಸರಣೆ', 'Your data. Our priority.': 'ನಿಮ್ಮ ಡೇಟಾ. ನಮ್ಮ ಆದ್ಯತೆ.',
+    'Multi-Level Access': 'ಬಹು-ಮಟ್ಟದ ಪ್ರವೇಶ', 'Every role. One network.': 'ಪ್ರತಿ ಪಾತ್ರ. ಒಂದು ಜಾಲ.',
+    'Better Outcomes': 'ಉತ್ತಮ ಫಲಿತಾಂಶಗಳು', 'Connected for healthier tomorrows.': 'ಆರೋಗ್ಯಕರ ನಾಳೆಗಾಗಿ ಸಂಪರ್ಕಿತ.',
+    'Our vision': 'ನಮ್ಮ ದೂರದೃಷ್ಟಿ', 'Discover our mission': 'ನಮ್ಮ ಧ್ಯೇಯ ತಿಳಿಯಿರಿ',
+    'Benefits': 'ಲಾಭಗಳು', 'Patient': 'ರೋಗಿ', 'Caretaker': 'ಪಾಲಕ', 'Doctor': 'ವೈದ್ಯ', 'Hospital': 'ಆಸ್ಪತ್ರೆ',
+    'Sign in': 'ಸೈನ್ ಇನ್', 'Create account': 'ಖಾತೆ ತೆರೆಯಿರಿ',
+    'Patient Demo': 'ರೋಗಿ ಡೆಮೊ', 'Caretaker Demo': 'ಪಾಲಕ ಡೆಮೊ', 'Doctor Demo': 'ವೈದ್ಯ ಡೆಮೊ', 'Hospital Demo': 'ಆಸ್ಪತ್ರೆ ಡೆಮೊ',
+    'Demo environment': 'ಡೆಮೊ ಪರಿಸರ', 'Launch': 'ತೆರೆಯಿರಿ',
+    'Lifelong Digital Health Identity': 'ಜೀವಿತಕಾಲದ ಡಿಜಿಟಲ್ ಆರೋಗ್ಯ ಗುರುತು',
+    'Voice-First, Inclusive Care': 'ಧ್ವನಿ-ಪ್ರಥಮ, ಎಲ್ಲರಿಗೂ ಆರೈಕೆ',
+    'Records Doctors Can Verify in Seconds': 'ವೈದ್ಯರು ಕ್ಷಣಗಳಲ್ಲಿ ದೃಢೀಕರಿಸುವ ದಾಖಲೆಗಳು',
+    'QR Access During the Golden Hour': 'ಗೋಲ್ಡನ್ ಅವರ್‌ನಲ್ಲಿ QR ಪ್ರವೇಶ',
+    'Five Connected Portals, One Ecosystem': 'ಐದು ಸಂಪರ್ಕಿತ ಪೋರ್ಟಲ್‌ಗಳು, ಒಂದು ವ್ಯವಸ್ಥೆ',
+    'Own your lifelong health identity, records, medicines and care journey.': 'ಜೀವಿತಕಾಲದ ಆರೋಗ್ಯ ಗುರುತು, ದಾಖಲೆಗಳು, ಔಷಧಿಗಳು ಮತ್ತು ಚಿಕಿತ್ಸಾ ಪಯಣ ನಿಮ್ಮಲ್ಲೇ.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'ಔಷಧಿಗಳು, ಆರೈಕೆ ಕಾರ್ಯಗಳು ಮತ್ತು ರೋಗಿ ಮಾಹಿತಿಯನ್ನು ವಿಶ್ವಾಸದಿಂದ ನಿರ್ವಹಿಸಿ.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'ದೃಢೀಕೃತ ದಾಖಲೆಗಳು, ವೈಟಲ್ಸ್ ಮತ್ತು ಇತಿಹಾಸವನ್ನು ವೇಗವಾಗಿ ನೋಡಿ.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'ಆಸ್ಪತ್ರೆ ಕಾರ್ಯಾಚರಣೆ, ವೈದ್ಯರು, ರೋಗಿಗಳು, ದಾಖಲೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ.',
+  },
+  bn: {
+    'Home': 'হোম', 'About Us': 'আমাদের সম্পর্কে', 'Our Network': 'আমাদের নেটওয়ার্ক', 'Services': 'সেবাসমূহ', 'Contact': 'যোগাযোগ',
+    'Connected Healthcare • Real-Time Care': 'সংযুক্ত স্বাস্থ্যসেবা • রিয়েল-টাইম যত্ন',
+    'A unified digital health identity': 'একটি ঐক্যবদ্ধ ডিজিটাল স্বাস্থ্য পরিচয়',
+    'One patient. One record. One connected journey.': 'এক রোগী। এক রেকর্ড। এক সংযুক্ত যাত্রা।',
+    'Explore Portals': 'পোর্টাল দেখুন', 'Try Patient Demo': 'রোগী ডেমো চেষ্টা করুন',
+    'Secure & Compliant': 'সুরক্ষিত ও অনুবর্তী', 'Your data. Our priority.': 'আপনার তথ্য। আমাদের অগ্রাধিকার।',
+    'Multi-Level Access': 'বহু-স্তরের প্রবেশাধিকার', 'Every role. One network.': 'প্রতিটি ভূমিকা। এক নেটওয়ার্ক।',
+    'Better Outcomes': 'উত্তম ফলাফল', 'Connected for healthier tomorrows.': 'সুস্থ ভবিষ্যতের জন্য সংযুক্ত।',
+    'Our vision': 'আমাদের দৃষ্টিভঙ্গি', 'Discover our mission': 'আমাদের লক্ষ্য জানুন',
+    'Benefits': 'সুবিধা', 'Patient': 'রোগী', 'Caretaker': 'যত্নদাতা', 'Doctor': 'ডাক্তার', 'Hospital': 'হাসপাতাল',
+    'Sign in': 'সাইন ইন', 'Create account': 'অ্যাকাউন্ট তৈরি করুন',
+    'Patient Demo': 'রোগী ডেমো', 'Caretaker Demo': 'যত্নদাতা ডেমো', 'Doctor Demo': 'ডাক্তার ডেমো', 'Hospital Demo': 'হাসপাতাল ডেমো',
+    'Demo environment': 'ডেমো পরিবেশ', 'Launch': 'খুলুন',
+    'Lifelong Digital Health Identity': 'আজীবন ডিজিটাল স্বাস্থ্য পরিচয়',
+    'Voice-First, Inclusive Care': 'ভয়েস-প্রথম, সবার জন্য যত্ন',
+    'Records Doctors Can Verify in Seconds': 'ডাক্তাররা সেকেন্ডে যাচাই করতে পারেন এমন রেকর্ড',
+    'QR Access During the Golden Hour': 'গোল্ডেন আওয়ারে QR প্রবেশাধিকার',
+    'Five Connected Portals, One Ecosystem': 'পাঁচটি সংযুক্ত পোর্টাল, এক ব্যবস্থা',
+    'Own your lifelong health identity, records, medicines and care journey.': 'আজীবন স্বাস্থ্য পরিচয়, রেকর্ড, ওষুধ ও চিকিৎসা যাত্রা আপনার হাতেই.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'ওষুধ, যত্নের কাজ ও রোগীর তথ্য আত্মবিশ্বাসের সাথে পরিচালনা করুন।',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'যাচাইকৃত রেকর্ড, ভাইটালস ও ইতিহাস দ্রুত দেখুন।',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'হাসপাতাল পরিচালনা, ডাক্তার, রোগী ও রেকর্ড ব্যবস্থাপনা করুন।',
+  },
+  mr: {
+    'Home': 'मुख्यपृष्ठ', 'About Us': 'आमच्याविषयी', 'Our Network': 'आमचे नेटवर्क', 'Services': 'सेवा', 'Contact': 'संपर्क',
+    'Connected Healthcare • Real-Time Care': 'जोडलेली आरोग्य सेवा • रिअल-टाइम काळजी',
+    'A unified digital health identity': 'एक एकीकृत डिजिटल आरोग्य ओळख',
+    'One patient. One record. One connected journey.': 'एक रुग्ण. एक रेकॉर्ड. एक जोडलेला प्रवास.',
+    'A premium, paperless healthcare ecosystem connecting patients, caretakers, doctors, hospitals and administrators through one synchronized digital experience.': 'एक उत्कृष्ट, कागदरहित आरोग्य व्यवस्था जी रुग्ण, पालक, डॉक्टर, रुग्णालये आणि प्रशासकांना एकाच डिजिटल अनुभवात जोडते.',
+    'Explore Portals': 'पोर्टल पहा', 'Try Patient Demo': 'रुग्ण डेमो पहा',
+    'Secure & Compliant': 'सुरक्षित आणि नियमपालन', 'Your data. Our priority.': 'तुमचा डेटा. आमचे प्राधान्य.',
+    'Multi-Level Access': 'बहु-स्तरीय प्रवेश', 'Every role. One network.': 'प्रत्येक भूमिका. एक नेटवर्क.',
+    'Better Outcomes': 'चांगले निकाल', 'Connected for healthier tomorrows.': 'निरोगी उद्यासाठी जोडलेले.',
+    'Our vision': 'आमची दृष्टी', 'Discover our mission': 'आमचे ध्येय जाणून घ्या',
+    'Interactive preview': 'इंटरॲक्टिव प्रीव्ह्यू', 'Explore the platform with': 'प्लॅटफॉर्म पहा', 'demo access.': 'डेमो ॲक्सेससह.',
+    'These cards use the existing demo-account flow. No new authentication logic is introduced.': 'या कार्ड्स विद्यमान डेमो-खाते प्रक्रिया वापरतात. नवीन लॉगिन पद्धत जोडलेली नाही.',
+    'One ecosystem • four access points': 'एक व्यवस्था • चार प्रवेशबिंदू',
+    "Every portal is connected to the same real-time health ecosystem while keeping access focused on the user's role.": 'प्रत्येक पोर्टल त्याच रिअल-टाइम आरोग्य व्यवस्थेशी जोडलेले आहे आणि प्रवेश वापरकर्त्याच्या भूमिकेपुरता मर्यादित आहे.',
+    'Benefits': 'फायदे', 'Why': 'का', 'matters.': 'महत्त्वाचे आहे.',
+    'Patient': 'रुग्ण', 'Caretaker': 'पालक', 'Doctor': 'डॉक्टर', 'Hospital': 'रुग्णालय',
+    'Own your lifelong health identity, records, medicines and care journey.': 'आयुष्यभराची आरोग्य ओळख, रेकॉर्ड, औषधे आणि उपचार प्रवास तुमच्याकडे ठेवा.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'औषधे, काळजी कामे आणि रुग्ण अपडेट्सवर आत्मविश्वासाने लक्ष ठेवा.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'पडताळलेले रेकॉर्ड, व्हायटल्स, प्रिस्क्रिप्शन आणि इतिहास जलद पहा.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'रुग्णालय कार्य, डॉक्टर, रुग्ण, रेकॉर्ड आणि अपॉइंटमेंट व्यवस्थापित करा.',
+    'Lifelong Digital Health Identity': 'आजीवन डिजिटल आरोग्य ओळख',
+    'Voice-First, Inclusive Care': 'आवाज-प्रथम, सर्वांसाठी सेवा',
+    'Records Doctors Can Verify in Seconds': 'डॉक्टर सेकंदांत पडताळू शकतील असे रेकॉर्ड',
+    'QR Access During the Golden Hour': 'गोल्डन आवरमध्ये QR प्रवेश',
+    'Five Connected Portals, One Ecosystem': 'पाच जोडलेले पोर्टल, एक व्यवस्था',
+    'Sign in': 'साइन इन', 'Create account': 'खाते तयार करा',
+    'Choose your ': 'तुमचा ', 'care portal.': 'केअर पोर्टल निवडा.',
+  },
+  gu: {
+    'Home': 'હોમ', 'About Us': 'અમારા વિશે', 'Our Network': 'અમારું નેટવર્ક', 'Services': 'સેવાઓ', 'Contact': 'સંપર્ક',
+    'Connected Healthcare • Real-Time Care': 'જોડાયેલી આરોગ્ય સંભાળ • રીયલ-ટાઇમ કેર',
+    'A unified digital health identity': 'એકીકૃત ડિજિટલ આરોગ્ય ઓળખ',
+    'One patient. One record. One connected journey.': 'એક દર્દી. એક રેકોર્ડ. એક જોડાયેલી સફર.',
+    'Explore Portals': 'પોર્ટલ જુઓ', 'Try Patient Demo': 'દર્દી ડેમો અજમાવો',
+    'Secure & Compliant': 'સુરક્ષિત અને અનુસારી', 'Your data. Our priority.': 'તમારો ડેટા. અમારી પ્રાથમિકતા.',
+    'Multi-Level Access': 'બહુ-સ્તરીય પ્રવેશ', 'Every role. One network.': 'દરેક ભૂમિકા. એક નેટવર્ક.',
+    'Better Outcomes': 'સારા પરિણામ', 'Connected for healthier tomorrows.': 'સ્વસ્થ કાલ માટે જોડાયેલા.',
+    'Our vision': 'અમારી દૃષ્ટિ', 'Discover our mission': 'અમારો મિશન જાણો',
+    'Benefits': 'લાભો', 'Patient': 'દર્દી', 'Caretaker': 'સંભાળ રાખનાર', 'Doctor': 'ડૉક્ટર', 'Hospital': 'હોસ્પિટલ',
+    'Sign in': 'સાઇન ઇન', 'Create account': 'ખાતું બનાવો',
+    'Patient Demo': 'દર્દી ડેમો', 'Caretaker Demo': 'સંભાળ ડેમો', 'Doctor Demo': 'ડૉક્ટર ડેમો', 'Hospital Demo': 'હોસ્પિટલ ડેમો',
+    'Demo environment': 'ડેમો વાતાવરણ', 'Launch': 'ખોલો',
+    'Lifelong Digital Health Identity': 'જીવનભરની ડિજિટલ આરોગ્ય ઓળખ',
+    'Voice-First, Inclusive Care': 'વૉઇસ-પ્રથમ, બધા માટે સંભાળ',
+    'Records Doctors Can Verify in Seconds': 'ડૉક્ટરો સેકંડોમાં ચકાસી શકે તેવા રેકોર્ડ',
+    'QR Access During the Golden Hour': 'ગોલ્ડન અવરમાં QR પ્રવેશ',
+    'Five Connected Portals, One Ecosystem': 'પાંચ જોડાયેલા પોર્ટલ, એક વ્યવસ્થા',
+    'Own your lifelong health identity, records, medicines and care journey.': 'જીવનભરની આરોગ્ય ઓળખ, રેકોર્ડ, દવાઓ અને સારવાર પ્રવાસ તમારી પાસે.',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'દવાઓ, સંભાળ કાર્યો અને દર્દી માહિતી આત્મવિશ્વાસથી સંચાલિત કરો.',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'ચકાસેલા રેકોર્ડ, વાયટલ્સ અને ઇતિહાસ ઝડપથી જુઓ.',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'હોસ્પિટલ કામગીરી, ડૉક્ટર, દર્દી અને રેકોર્ડ સંચાલિત કરો.',
+  },
+  pa: {
+    'Home': 'ਹੋਮ', 'About Us': 'ਸਾਡੇ ਬਾਰੇ', 'Our Network': 'ਸਾਡਾ ਨੈੱਟਵਰਕ', 'Services': 'ਸੇਵਾਵਾਂ', 'Contact': 'ਸੰਪਰਕ',
+    'Connected Healthcare • Real-Time Care': 'ਜੁੜੀ ਸਿਹਤ ਸੇਵਾ • ਰੀਅਲ-ਟਾਈਮ ਦੇਖਭਾਲ',
+    'A unified digital health identity': 'ਇੱਕ ਏਕੀਕ੍ਰਿਤ ਡਿਜੀਟਲ ਸਿਹਤ ਪਛਾਣ',
+    'One patient. One record. One connected journey.': 'ਇੱਕ ਮਰੀਜ਼। ਇੱਕ ਰਿਕਾਰਡ। ਇੱਕ ਜੁੜਿਆ ਸਫ਼ਰ।',
+    'Explore Portals': 'ਪੋਰਟਲ ਵੇਖੋ', 'Try Patient Demo': 'ਮਰੀਜ਼ ਡੈਮੋ ਅਜ਼ਮਾਓ',
+    'Secure & Compliant': 'ਸੁਰੱਖਿਅਤ ਅਤੇ ਪਾਲਣਾ', 'Your data. Our priority.': 'ਤੁਹਾਡਾ ਡਾਟਾ। ਸਾਡੀ ਤਰਜੀਹ।',
+    'Multi-Level Access': 'ਬਹੁ-ਪੱਧਰੀ ਪਹੁੰਚ', 'Every role. One network.': 'ਹਰ ਭੂਮਿਕਾ। ਇੱਕ ਨੈੱਟਵਰਕ।',
+    'Better Outcomes': 'ਵਧੀਆ ਨਤੀਜੇ', 'Connected for healthier tomorrows.': 'ਸਿਹਤਮੰਦ ਕੱਲ ਲਈ ਜੁੜੇ।',
+    'Our vision': 'ਸਾਡੀ ਦ੍ਰਿਸ਼ਟੀ', 'Discover our mission': 'ਸਾਡਾ ਮਿਸ਼ਨ ਜਾਣੋ',
+    'Benefits': 'ਲਾਭ', 'Patient': 'ਮਰੀਜ਼', 'Caretaker': 'ਦੇਖਭਾਲ ਕਰਨ ਵਾਲਾ', 'Doctor': 'ਡਾਕਟਰ', 'Hospital': 'ਹਸਪਤਾਲ',
+    'Sign in': 'ਸਾਈਨ ਇਨ', 'Create account': 'ਖਾਤਾ ਬਣਾਓ',
+    'Patient Demo': 'ਮਰੀਜ਼ ਡੈਮੋ', 'Caretaker Demo': 'ਦੇਖਭਾਲ ਡੈਮੋ', 'Doctor Demo': 'ਡਾਕਟਰ ਡੈਮੋ', 'Hospital Demo': 'ਹਸਪਤਾਲ ਡੈਮੋ',
+    'Demo environment': 'ਡੈਮੋ ਵਾਤਾਵਰਣ', 'Launch': 'ਖੋਲ੍ਹੋ',
+    'Lifelong Digital Health Identity': 'ਉਮਰ ਭਰ ਦੀ ਡਿਜੀਟਲ ਸਿਹਤ ਪਛਾਣ',
+    'Voice-First, Inclusive Care': 'ਆਵਾਜ਼-ਪਹਿਲਾਂ, ਸਭ ਲਈ ਦੇਖਭਾਲ',
+    'Records Doctors Can Verify in Seconds': 'ਡਾਕਟਰ ਸਕਿੰਟਾਂ ਵਿੱਚ ਤਸਦੀਕ ਕਰਨ ਵਾਲੇ ਰਿਕਾਰਡ',
+    'QR Access During the Golden Hour': 'ਗੋਲਡਨ ਆਵਰ ਵਿੱਚ QR ਪਹੁੰਚ',
+    'Five Connected Portals, One Ecosystem': 'ਪੰਜ ਜੁੜੇ ਪੋਰਟਲ, ਇੱਕ ਸਿਸਟਮ',
+    'Own your lifelong health identity, records, medicines and care journey.': 'ਉਮਰ ਭਰ ਦੀ ਸਿਹਤ ਪਛਾਣ, ਰਿਕਾਰਡ, ਦਵਾਈਆਂ ਅਤੇ ਇਲਾਜ ਸਫ਼ਰ ਤੁਹਾਡੇ ਕੋਲ।',
+    'Coordinate medicines, care tasks and patient updates with confidence.': 'ਦਵਾਈਆਂ, ਦੇਖਭਾਲ ਕੰਮ ਅਤੇ ਮਰੀਜ਼ ਜਾਣਕਾਰੀ ਭਰੋਸੇ ਨਾਲ ਸੰਭਾਲੋ।',
+    'Review verified records, vitals, prescriptions and patient history faster.': 'ਪ੍ਰਮਾਣਿਤ ਰਿਕਾਰਡ, ਵਾਈਟਲਜ਼ ਅਤੇ ਇਤਿਹਾਸ ਤੇਜ਼ੀ ਨਾਲ ਵੇਖੋ।',
+    'Manage hospital operations, doctors, patients, records and appointments.': 'ਹਸਪਤਾਲ ਕੰਮ, ਡਾਕਟਰ, ਮਰੀਜ਼ ਅਤੇ ਰਿਕਾਰਡ ਪ੍ਰਬੰਧਿਤ ਕਰੋ।',
+  },
+};
+Object.keys(LANDING_I18N).forEach((k) => { I18N[k] = { ...(I18N[k] || {}), ...LANDING_I18N[k] }; });
+
+export const t = (k: string): string =>
+  (I18N[CUR_LANG] && I18N[CUR_LANG][k]) || I18N.en[k] || k;
+
+/* English value -> key lookup, built once (same trick as the original app) */
+const I18N_BY_EN: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  Object.keys(I18N.en).forEach((key) => {
+    const v = I18N.en[key];
+    if (v && !map[v]) map[v] = key;
+  });
+  return map;
+})();
+
+/* Split "My Medicines →" into lead emoji / core text / trail symbols so
+ * emoji-prefixed headings and buttons still match plain dictionary values. */
+function i18nSplit(text: string) {
+  const s = String(text || '').trim();
+  if (!s) return null;
+  const leadM = s.match(/^[^\p{L}\p{N}]+/u);
+  let core = leadM ? s.slice(leadM[0].length) : s;
+  const lead = leadM ? leadM[0] : '';
+  const trailM = core.match(/[^\p{L}\p{N}%]+$/u);
+  let trail = '';
+  if (trailM && trailM[0].length < core.length) {
+    trail = trailM[0];
+    core = core.slice(0, core.length - trail.length);
+  }
+  if (!core) return null;
+  return { lead, core, trail };
+}
+
+function translateElement(el: Element) {
+  const h = el as HTMLElement;
+  if (h.hasAttribute && h.hasAttribute('data-i18n')) {
+    const v = t(h.getAttribute('data-i18n')!);
+    if (h.textContent !== v) h.textContent = v;
+  } else if (h.childElementCount === 0) {
+    const source = h.dataset.i18nSource || h.textContent || '';
+    const parts = i18nSplit(source);
+    const key = parts && (I18N_BY_EN[parts.core] || I18N_BY_EN[source.trim()]);
+    if (key) {
+      h.dataset.i18nSource = source;
+      const translated = t(key);
+      const rebuilt =
+        parts && I18N_BY_EN[parts.core] ? parts.lead + translated + parts.trail : translated;
+      if (h.textContent !== rebuilt) h.textContent = rebuilt;
+    }
+  }
+  if (h.hasAttribute && h.hasAttribute('data-i18n-ph')) h.setAttribute('placeholder', t(h.getAttribute('data-i18n-ph')!));
+  if (h.hasAttribute && h.hasAttribute('data-i18n-title')) h.setAttribute('title', t(h.getAttribute('data-i18n-title')!));
+}
+
+function applyStaticI18N() {
+  document
+    .querySelectorAll('[data-i18n], [data-i18n-ph], [data-i18n-title], button, a, label, h1, h2, h3, h4, h5, p, option, small, th, td, span')
+    .forEach(translateElement);
+}
+
+/** Re-translate a live-language event: dashboards listen to this to re-render. */
+export const LANG_EVENT = 'mhd-lang';
+
+export function setLanguage(v: string) {
+  if (!I18N[v]) v = 'en';
+  CUR_LANG = v;
+  try { localStorage.setItem('mhd_lang', v); } catch { /* ignore */ }
+  applyStaticI18N();
+  window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: v }));
+}
+
+/* One debounced observer re-translates everything React renders
+ * (same behaviour as the original MutationObserver-based i18n). */
+let i18nRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+export function startI18N() {
+  const observer = new MutationObserver(() => {
+    if (i18nRefreshTimer) clearTimeout(i18nRefreshTimer);
+    i18nRefreshTimer = setTimeout(applyStaticI18N, 0);
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  applyStaticI18N();
+}
