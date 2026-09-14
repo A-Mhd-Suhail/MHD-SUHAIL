@@ -1,0 +1,1 @@
+import{y as t,A as c,z as m,x as p}from"./firebase-Dy0s63gn.js";import{d as f}from"./index-TkiD7Xtl.js";function l(s,e,i,n){let a=t(c(f,s));return e.forEach(([r,o,d])=>{a=t(a,m(r,o,d))}),p(a,r=>i(r.docs.map(o=>({id:o.id,...o.data()}))),()=>n?.())}export{l as b};
